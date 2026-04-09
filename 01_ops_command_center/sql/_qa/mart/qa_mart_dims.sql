@@ -35,14 +35,14 @@ begin
   end if;
 
   select count(*) into v from (
-    select date_day
+    select date
     from mart.dim_date
     group by 1
     having count(*) > 1
   ) t;
 
   if v > 0 then
-    raise exception 'QA FAIL: mart.dim_date has % duplicate date_day values', v;
+    raise exception 'QA FAIL: mart.dim_date has % duplicate date values', v;
   end if;
 
   -- ----------------------------

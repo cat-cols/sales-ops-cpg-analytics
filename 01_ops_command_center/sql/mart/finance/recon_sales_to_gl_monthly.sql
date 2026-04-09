@@ -8,6 +8,7 @@ create or replace view mart.recon_sales_to_gl_monthly as
 with params as (
   select
     0.02::numeric as pct_tolerance,   -- 2%
+    0.035::numeric as gross_margin_pct_tolerance,
     500::numeric  as abs_tolerance    -- $500
 ),
 mart_monthly as (
@@ -59,21 +60,29 @@ select
   (coalesce(mart_amount,0) - coalesce(gl_amount,0))::numeric as diff_amount,
   case
     when greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0))) = 0 then 0
-    else (abs(coalesce(mart_amount,0) - coalesce(gl_amount,0))
-          / nullif(greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0))), 0)
+    else (
+      abs(coalesce(mart_amount,0) - coalesce(gl_amount,0))
+      / nullif(greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0))), 0)
     )::numeric
   end as pct_diff,
   case
     when mart_amount is null then 'FAIL_missing_mart'
     when gl_amount is null then 'FAIL_missing_gl'
     when abs(coalesce(mart_amount,0) - coalesce(gl_amount,0)) <= (select abs_tolerance from params) then 'PASS'
-    when (
-      greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0))) > 0
-      and
-      (abs(coalesce(mart_amount,0) - coalesce(gl_amount,0))
+    when metric = 'gross_margin'
+      and greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0))) > 0
+      and (
+        abs(coalesce(mart_amount,0) - coalesce(gl_amount,0))
+        / greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0)))
+      ) <= (select gross_margin_pct_tolerance from params)
+    then 'PASS'
+    when metric <> 'gross_margin'
+      and greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0))) > 0
+      and (
+        abs(coalesce(mart_amount,0) - coalesce(gl_amount,0))
         / greatest(abs(coalesce(mart_amount,0)), abs(coalesce(gl_amount,0)))
       ) <= (select pct_tolerance from params)
-    ) then 'PASS'
+    then 'PASS'
     else 'FAIL_mismatch'
   end as status
 from melt

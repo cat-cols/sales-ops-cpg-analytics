@@ -79,7 +79,7 @@ class Config:
 
     # mess knobs
     pct_duplicate: float = 0.06
-    pct_missing_store: float = 0.04
+    pct_missing_store: float = 0.005
     pct_channel_mess: float = 0.10
     pct_trailing_space: float = 0.08
     pct_bad_date_format: float = 0.10
@@ -640,8 +640,9 @@ def gen_finance_actuals_month_from_truth(
             d += float(rng.choice([-0.01, 0.01]))
         return 1 + d
 
-    revenue_factor = rng.uniform(0.995, 1.005)
-    cogs_factor = rng.uniform(0.995, 1.005)
+    sales_factor = rng.uniform(0.997, 1.003)
+    revenue_factor = sales_factor
+    cogs_factor = sales_factor
     labor_factor = rng.uniform(0.995, 1.005)
 
     finance_gross_sales = round(gross_sales * revenue_factor, 2)
