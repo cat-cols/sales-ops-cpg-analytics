@@ -17,7 +17,7 @@ mart_monthly as (
     sum(coalesce(gross_sales,0))::numeric as mart_gross_sales,
     sum(coalesce(cogs,0))::numeric as mart_cogs,
     sum(coalesce(net_sales,0) - coalesce(cogs,0))::numeric as mart_gross_margin
-  from mart.fact_sales_distributor_daily
+  from mart.fact_sales_daily
   group by 1
 ),
 gl as (

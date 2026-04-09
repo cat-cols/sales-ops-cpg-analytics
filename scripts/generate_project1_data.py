@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-# scripts/source_drop_simulator.py
-"""
-Multi-source drop simulator (Project 1 realism layer) using PostgreSQL ONLY.
+# scripts/generate_project1_data.py
 
-What this version fixes vs prior:
-1) Stable typing in Postgres: tables are created with explicit schemas (not inferred from pandas).
-2) Integration keys: each raw table gets normalized join keys (e.g., store_code_norm, sku_norm),
-   and parsed date/timestamp columns (e.g., txn_ts_parsed).
-3) Full raw landing zone: ALL sources land in Postgres raw tables (not only POS + GL),
-   while still writing messy files into data/source_extracts/... for realism.
+"""
+Project 1 multi-source drop simulator using PostgreSQL only.
+
+What this version does correctly:
+1) Generates CLEAN business truth first.
+2) Creates MESSY upstream extracts from that truth.
+3) Lands standardized raw tables in Postgres with stable schemas.
+4) Derives finance actuals from CLEAN monthly truth, not from already-messified source rows.
 
 Cadences / drops written to disk:
 Daily
@@ -17,6 +17,9 @@ Daily
 - Ops / ERP inventory snapshot CSV
 - Ops / WMS shipments CSV
 - People / Timeclock punches CSV
+- Reference / Account status CSV
+- Reference / Dispensary master CSV
+- Reference / SKU distribution status CSV
 
 Weekly
 - People / Payroll export XLSX
@@ -25,14 +28,17 @@ Monthly
 - Finance / Actuals summary XLSX
 
 Postgres raw loads (all sources):
-- raw.sales_distributor
-- raw.pos_transactions
+- raw.sales_distributor_extract
+- raw.pos_transactions_csv
 - raw.inventory_erp_snapshot
 - raw.wms_shipments
 - raw.timeclock_punches
-- raw.payroll_weekly
+- raw.labor_hours_payroll_export
 - raw.finance_actuals_summary
 - raw.gl_detail_csv
+- raw.account_status
+- raw.dispensary_master
+- raw.sku_distribution_status
 
 Writes drops under:
   data/source_extracts/<domain>/<system>/incoming/YYYY/MM/DD/<file>
@@ -41,12 +47,6 @@ And updates the latest copy under:
 
 Also writes a manifest to:
   docs/source_drop_manifest.csv
-
-No hardcoded paths: repo root is derived from this file location.
-
-Dependencies:
-  pandas, numpy, openpyxl
-  psycopg (preferred) OR psycopg2
 """
 
 from __future__ import annotations
@@ -138,16 +138,26 @@ WYLD_PRODUCTS: list[dict[str, Any]] = [
 
 def make_stores(n: int) -> pd.DataFrame:
     states = ["OR", "WA", "CA", "CO", "AZ", "NV", "IL", "MI"]
-    # country = ["United States", "Canada"]
     rows = []
     for i in range(1, n + 1):
         st = states[(i - 1) % len(states)]
-        rows.append({"store_id": f"{st}{i:03d}", "store_name": f"{st} Account {i:03d}", "state": st, "country": "US"})
+        rows.append(
+            {
+                "store_id": f"{st}{i:03d}",
+                "store_name": f"{st} Account {i:03d}",
+                "state": st,
+                "country": "US",
+            }
+        )
     return pd.DataFrame(rows)
 
 
 def month_seasonality(month: int) -> float:
-    return {1: 0.93, 2: 0.95, 3: 0.98, 4: 1.00, 5: 1.03, 6: 1.06, 7: 1.08, 8: 1.07, 9: 1.02, 10: 1.01, 11: 1.10, 12: 1.14}[month]
+    return {
+        1: 0.93, 2: 0.95, 3: 0.98, 4: 1.00,
+        5: 1.03, 6: 1.06, 7: 1.08, 8: 1.07,
+        9: 1.02, 10: 1.01, 11: 1.10, 12: 1.14,
+    }[month]
 
 
 def weekday_factor(weekday: int, channel: str) -> float:
@@ -163,7 +173,7 @@ def weekday_factor(weekday: int, channel: str) -> float:
 # -----------------------------
 
 def maybe_duplicates(df: pd.DataFrame, rng: np.random.Generator, pct: float) -> pd.DataFrame:
-    if len(df) == 0:
+    if df.empty:
         return df
     n = int(round(len(df) * pct))
     n = max(5, n) if len(df) > 100 else min(3, len(df))
@@ -174,7 +184,7 @@ def maybe_duplicates(df: pd.DataFrame, rng: np.random.Generator, pct: float) -> 
 
 
 def maybe_missing(series: pd.Series, rng: np.random.Generator, pct: float) -> pd.Series:
-    if len(series) == 0:
+    if series.empty:
         return series
     n = int(round(len(series) * pct))
     if n <= 0:
@@ -186,7 +196,7 @@ def maybe_missing(series: pd.Series, rng: np.random.Generator, pct: float) -> pd
 
 
 def maybe_channel_mess(series: pd.Series, rng: np.random.Generator, pct: float) -> pd.Series:
-    if len(series) == 0:
+    if series.empty:
         return series
     n = int(round(len(series) * pct))
     if n <= 0:
@@ -205,7 +215,7 @@ def maybe_channel_mess(series: pd.Series, rng: np.random.Generator, pct: float) 
 
 
 def maybe_trailing_spaces(series: pd.Series, rng: np.random.Generator, pct: float) -> pd.Series:
-    if len(series) == 0:
+    if series.empty:
         return series
     n = int(round(len(series) * pct))
     if n <= 0:
@@ -217,7 +227,7 @@ def maybe_trailing_spaces(series: pd.Series, rng: np.random.Generator, pct: floa
 
 
 def maybe_bad_date_format(series: pd.Series, rng: np.random.Generator, pct: float) -> pd.Series:
-    if len(series) == 0:
+    if series.empty:
         return series
     n = int(round(len(series) * pct))
     if n <= 0:
@@ -230,7 +240,7 @@ def maybe_bad_date_format(series: pd.Series, rng: np.random.Generator, pct: floa
 
 
 # -----------------------------
-# Generators (DataFrames)
+# Generators
 # -----------------------------
 
 def gen_account_status_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
@@ -264,17 +274,15 @@ def gen_account_status_day(cfg: Config, rng: np.random.Generator, d: pd.Timestam
         )
 
     df = pd.DataFrame(rows)
-    if len(df) == 0:
+    if df.empty:
         return df
 
-    # inject mess similar to your other sources
     df = maybe_duplicates(df, rng, cfg.pct_duplicate / 2)
     df["store_code"] = maybe_missing(df["store_code"], rng, cfg.pct_missing_store / 2)
-    df["account_status"] = maybe_channel_mess(df["account_status"], rng, 0.08)  # casing/whitespace
+    df["account_status"] = maybe_channel_mess(df["account_status"], rng, 0.08)
     df["status_reason"] = maybe_trailing_spaces(df["status_reason"], rng, 0.06)
     df["status_date"] = maybe_bad_date_format(df["status_date"], rng, cfg.pct_bad_date_format / 2)
 
-    # optional header drift (keeps it realistic)
     return df.rename(
         columns={
             "status_date": "Status Date",
@@ -284,7 +292,18 @@ def gen_account_status_day(cfg: Config, rng: np.random.Generator, d: pd.Timestam
         }
     )
 
-def gen_sales_distributor_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
+
+def gen_sales_distributor_day(
+    cfg: Config,
+    rng: np.random.Generator,
+    d: pd.Timestamp,
+    stores: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Returns:
+      clean_df: business truth
+      messy_df: upstream messy extract version
+    """
     channels = ["Retail", "Wholesale", "Distributor"]
     rows: list[dict[str, Any]] = []
     season = month_seasonality(int(d.month))
@@ -297,10 +316,12 @@ def gen_sales_distributor_day(cfg: Config, rng: np.random.Generator, d: pd.Times
                 prob = float(np.clip(1 / (1 + np.exp(-(base - 1.2))), 0.10, 0.95))
                 if rng.random() > prob:
                     continue
+
                 units = max(1, int(rng.poisson(max(0.2, base * 3.2))))
                 unit_list = float(prod["base_price"]) * float(rng.normal(1.0, 0.03))
                 ch_factor = {"Retail": 1.0, "Wholesale": 0.88, "Distributor": 0.82}[ch]
                 unit_list = max(0.01, unit_list * ch_factor)
+
                 discount_rate = float(np.clip(rng.normal(0.08, 0.035), 0, 0.35))
                 unit_net = unit_list * (1 - discount_rate)
 
@@ -328,18 +349,18 @@ def gen_sales_distributor_day(cfg: Config, rng: np.random.Generator, d: pd.Times
                     }
                 )
 
-    df = pd.DataFrame(rows)
-    if len(df) == 0:
-        return df
+    clean_df = pd.DataFrame(rows)
+    if clean_df.empty:
+        return clean_df, clean_df.copy()
 
-    df = maybe_duplicates(df, rng, cfg.pct_duplicate)
-    df["store_id"] = maybe_missing(df["store_id"], rng, cfg.pct_missing_store)
-    df["channel"] = maybe_channel_mess(df["channel"], rng, cfg.pct_channel_mess)
-    df["product_name"] = maybe_trailing_spaces(df["product_name"], rng, cfg.pct_trailing_space)
-    df["sale_date"] = maybe_bad_date_format(df["sale_date"], rng, cfg.pct_bad_date_format)
+    messy_df = clean_df.copy()
+    messy_df = maybe_duplicates(messy_df, rng, cfg.pct_duplicate)
+    messy_df["store_id"] = maybe_missing(messy_df["store_id"], rng, cfg.pct_missing_store)
+    messy_df["channel"] = maybe_channel_mess(messy_df["channel"], rng, cfg.pct_channel_mess)
+    messy_df["product_name"] = maybe_trailing_spaces(messy_df["product_name"], rng, cfg.pct_trailing_space)
+    messy_df["sale_date"] = maybe_bad_date_format(messy_df["sale_date"], rng, cfg.pct_bad_date_format)
 
-    # header drift (mess)
-    return df.rename(
+    messy_df = messy_df.rename(
         columns={
             "sale_date": "Sale Date",
             "store_id": "Store ID",
@@ -351,6 +372,8 @@ def gen_sales_distributor_day(cfg: Config, rng: np.random.Generator, d: pd.Times
             "discount_rate": "Discount Rate",
         }
     )
+
+    return clean_df, messy_df
 
 
 def gen_pos_transactions_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
@@ -387,7 +410,7 @@ def gen_pos_transactions_day(cfg: Config, rng: np.random.Generator, d: pd.Timest
             )
 
     df = pd.DataFrame(rows)
-    if len(df) == 0:
+    if df.empty:
         return df
 
     df = maybe_duplicates(df, rng, cfg.pct_duplicate / 2)
@@ -397,7 +420,6 @@ def gen_pos_transactions_day(cfg: Config, rng: np.random.Generator, d: pd.Timest
     idx = rng.choice(df.index.to_numpy(), size=min(n, len(df)), replace=False)
     ts = pd.to_datetime(df.loc[idx, "txn_ts"], errors="coerce")
     df.loc[idx, "txn_ts"] = ts.dt.strftime("%m/%d/%Y %H:%M").fillna(df.loc[idx, "txn_ts"])
-
     return df
 
 
@@ -427,7 +449,7 @@ def gen_inventory_snapshot_day(cfg: Config, rng: np.random.Generator, d: pd.Time
             )
 
     df = pd.DataFrame(rows)
-    if len(df) == 0:
+    if df.empty:
         return df
 
     n = int(max(1, round(len(df) * cfg.pct_negative_inventory)))
@@ -478,7 +500,7 @@ def gen_wms_shipments_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp
             )
 
     df = pd.DataFrame(rows)
-    if len(df) == 0:
+    if df.empty:
         return df
 
     df = maybe_duplicates(df, rng, cfg.pct_duplicate / 3)
@@ -504,7 +526,7 @@ def gen_timeclock_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, st
                 rows.append({"punch_ts": end.strftime("%Y-%m-%d %H:%M:%S"), "employee_id": emp_id, "site_code": s["store_id"], "action": "OUT"})
 
     df = pd.DataFrame(rows)
-    if len(df) == 0:
+    if df.empty:
         return df
 
     idx = rng.choice(df.index.to_numpy(), size=min(25, len(df)), replace=False)
@@ -513,7 +535,17 @@ def gen_timeclock_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, st
     return df
 
 
-def gen_payroll_week(cfg: Config, rng: np.random.Generator, week_end: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
+def gen_payroll_week(
+    cfg: Config,
+    rng: np.random.Generator,
+    week_end: pd.Timestamp,
+    stores: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Returns:
+      clean_df: business truth
+      messy_df: upstream messy extract version
+    """
     teams = ["Fulfillment", "Warehouse", "Field Sales", "FP&A", "HR", "Manufacturing", "Planning", "Corporate"]
     departments = {
         "Fulfillment": "Operations",
@@ -547,18 +579,19 @@ def gen_payroll_week(cfg: Config, rng: np.random.Generator, week_end: pd.Timesta
                 }
             )
 
-    df = pd.DataFrame(rows)
-    if len(df) == 0:
-        return df
+    clean_df = pd.DataFrame(rows)
+    if clean_df.empty:
+        return clean_df, clean_df.copy()
 
-    idx = rng.choice(df.index.to_numpy(), size=min(20, len(df)), replace=False)
-    df.loc[idx, "team"] = df.loc[idx, "team"].replace({"Fulfillment": "Fulfilment"})
+    messy_df = clean_df.copy()
+    idx = rng.choice(messy_df.index.to_numpy(), size=min(20, len(messy_df)), replace=False)
+    messy_df.loc[idx, "team"] = messy_df.loc[idx, "team"].replace({"Fulfillment": "Fulfilment"})
 
-    bad_idx = rng.choice(df.index.to_numpy(), size=min(5, len(df)), replace=False)
-    df.loc[bad_idx, "hours_worked"] = 0
-    df.loc[bad_idx, "labor_cost"] = df.loc[bad_idx, "labor_cost"].clip(lower=50)
+    bad_idx = rng.choice(messy_df.index.to_numpy(), size=min(5, len(messy_df)), replace=False)
+    messy_df.loc[bad_idx, "hours_worked"] = 0
+    messy_df.loc[bad_idx, "labor_cost"] = messy_df.loc[bad_idx, "labor_cost"].clip(lower=50)
 
-    return df.rename(
+    messy_df = messy_df.rename(
         columns={
             "week_ending": "Week Ending",
             "site_code": "Site Code",
@@ -568,6 +601,9 @@ def gen_payroll_week(cfg: Config, rng: np.random.Generator, week_end: pd.Timesta
             "labor_cost": "Labor Cost",
         }
     )
+
+    return clean_df, messy_df
+
 
 def gen_finance_actuals_month_from_truth(
     rng: np.random.Generator,
@@ -586,25 +622,49 @@ def gen_finance_actuals_month_from_truth(
     sm = sales_monthly.loc[sales_monthly["period_month"] == month_start].copy()
     lm = labor_monthly.loc[labor_monthly["period_month"] == month_start].copy()
 
-    gross_sales = float(sm["gross_sales"].sum())
-    net_sales = float(sm["net_sales"].sum())
-    cogs = float(sm["cogs"].sum())
-    labor_cost = float(lm["labor_cost"].sum()) if not lm.empty else 0.0
+    gross_sales = round(float(sm["gross_sales"].sum()), 2)
+    net_sales = round(float(sm["net_sales"].sum()), 2)
+    cogs = round(float(sm["cogs"].sum()), 2)
+    labor_cost = round(float(lm["labor_cost"].sum()), 2) if not lm.empty else 0.0
 
-    # apply small finance drift / close adjustments
-    def drift(v: float, std: float = 0.006, extra_prob: float = 0.15) -> float:
+    if gross_sales < net_sales:
+        raise ValueError(
+            f"Invalid finance truth for {month_start.date()}: gross_sales ({gross_sales}) < net_sales ({net_sales})"
+        )
+
+    discounts = round(gross_sales - net_sales, 2)
+
+    def drift_factor(std: float = 0.006, extra_prob: float = 0.15) -> float:
         d = float(rng.normal(0.0, std))
         if rng.random() < extra_prob:
             d += float(rng.choice([-0.01, 0.01]))
-        return round(v * (1 + d), 2)
+        return 1 + d
+
+    revenue_factor = rng.uniform(0.995, 1.005)
+    cogs_factor = rng.uniform(0.995, 1.005)
+    labor_factor = rng.uniform(0.995, 1.005)
+
+    finance_gross_sales = round(gross_sales * revenue_factor, 2)
+    finance_discounts = round(discounts * revenue_factor, 2)
+    finance_discounts = max(0.0, min(finance_discounts, finance_gross_sales))
+
+    finance_net_sales = round(finance_gross_sales - finance_discounts, 2)
+    finance_cogs = round(cogs * cogs_factor, 2)
+    finance_labor_cost = round(labor_cost * labor_factor, 2)
+    finance_gross_margin = round(finance_net_sales - finance_cogs, 2)
+
+    if finance_gross_sales < finance_net_sales:
+        raise ValueError(
+            f"Invalid finance actuals for {month_start.date()}: gross_sales ({finance_gross_sales}) < net_sales ({finance_net_sales})"
+        )
 
     finance_base = {
-        "gross_sales": drift(gross_sales),
-        "net_sales": drift(net_sales),
-        "cogs": drift(cogs),
-        "labor_cost": drift(labor_cost),
+        "gross_sales": finance_gross_sales,
+        "net_sales": finance_net_sales,
+        "cogs": finance_cogs,
+        "gross_margin": finance_gross_margin,
+        "labor_cost": finance_labor_cost,
     }
-    finance_base["gross_margin"] = round(finance_base["net_sales"] - finance_base["cogs"], 2)
 
     rows = []
     for k, v in finance_base.items():
@@ -618,40 +678,6 @@ def gen_finance_actuals_month_from_truth(
         )
 
     return pd.DataFrame(rows)
-
-# def gen_finance_actuals_month(cfg: Config, rng: np.random.Generator, month_start: pd.Timestamp) -> pd.DataFrame:
-#     metric_labels = {
-#         "gross_sales": ["Gross Sales", "gross_sales", "GROSS_SALES"],
-#         "net_sales": ["Net Sales", "net_sales", "NET_SALES"],
-#         "cogs": ["COGS", "cogs", "Cost of Goods"],
-#         "gross_margin": ["Gross Margin", "gross_margin"],
-#         "labor_cost": ["Labor Cost", "labor_cost"],
-#     }
-
-#     base = {
-#         "gross_sales": float(rng.uniform(250000, 900000)),
-#         "net_sales": float(rng.uniform(220000, 820000)),
-#         "cogs": float(rng.uniform(90000, 360000)),
-#         "labor_cost": float(rng.uniform(55000, 180000)),
-#     }
-#     base["gross_margin"] = base["net_sales"] - base["cogs"]
-
-#     rows: list[dict[str, Any]] = []
-#     for k, v in base.items():
-#         drift = float(rng.normal(0.0, 0.008))
-#         if rng.random() < 0.20:
-#             drift += float(rng.choice([-0.012, 0.013]))
-#         rows.append(
-#             {
-#                 "month_start": month_start.date().isoformat(),
-#                 "metric_name": str(rng.choice(metric_labels[k])),
-#                 "actual_amount": round(v * (1 + drift), 2),
-#                 "currency_code": "USD",
-#             }
-#         )
-
-#     df = pd.DataFrame(rows)
-#     return df.rename(columns={"month_start": "Month Start", "metric_name": "Metric Name", "actual_amount": "Actual Amount", "currency_code": "Currency"})
 
 
 def gen_gl_detail_month(cfg: Config, rng: np.random.Generator, month_start: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
@@ -683,22 +709,12 @@ def gen_gl_detail_month(cfg: Config, rng: np.random.Generator, month_start: pd.T
         )
 
     df = pd.DataFrame(rows)
-    df["location_code"] = maybe_missing(df["location_code"], rng, 0.003)
+    if not df.empty:
+        df["location_code"] = maybe_missing(df["location_code"], rng, 0.003)
     return df
 
-def gen_dispensary_master_day(
-    cfg: Config,
-    rng: np.random.Generator,
-    d: pd.Timestamp,
-    stores: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Dispensary master snapshot (reference system).
-    One row per store/account, with stable identifiers + some realistic drift/mess.
-    Output is *messy* (header drift), like your other file drops.
-    """
 
-    # lightweight city pool by state
+def gen_dispensary_master_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
     cities = {
         "OR": ["Portland", "Eugene", "Salem", "Bend", "Gresham"],
         "WA": ["Seattle", "Tacoma", "Spokane", "Vancouver", "Olympia"],
@@ -716,17 +732,10 @@ def gen_dispensary_master_day(
     for i, s in enumerate(stores.itertuples(index=False), start=1):
         state = getattr(s, "state", None) or str(getattr(s, "store_id"))[:2]
         city = str(rng.choice(cities.get(state, ["Unknown"])))
-
-        # stable-ish ids
         dispensary_id = f"DSP{i:05d}"
         store_code = getattr(s, "store_id")
-
-        # make plausible postal
         postal = f"{int(rng.integers(97000, 99950)):05d}" if state in ("OR", "WA") else f"{int(rng.integers(10000, 99950)):05d}"
-
-        # license formats vary by state (fake but plausible)
         license_id = f"{state}-LIC-{int(rng.integers(100000, 999999))}"
-
         name = getattr(s, "store_name", None) or f"{state} Dispensary {i:03d}"
         acct_type = str(rng.choice(acct_types))
 
@@ -745,29 +754,20 @@ def gen_dispensary_master_day(
         )
 
     df = pd.DataFrame(rows)
-    if len(df) == 0:
+    if df.empty:
         return df
 
-    # ---- inject mess (like your other sources) ----
     df = maybe_duplicates(df, rng, cfg.pct_duplicate / 3)
-
-    # occasional missing keys
     df["dispensary_id"] = maybe_missing(df["dispensary_id"], rng, 0.01)
     df["store_code"] = maybe_missing(df["store_code"], rng, cfg.pct_missing_store / 3)
-
-    # casing/whitespace drift
     df["dispensary_name"] = maybe_trailing_spaces(df["dispensary_name"], rng, 0.06)
-    df["city"] = maybe_channel_mess(df["city"], rng, 0.08)          # reuses your casing/whitespace injector
+    df["city"] = maybe_channel_mess(df["city"], rng, 0.08)
     df["account_type"] = maybe_channel_mess(df["account_type"], rng, 0.10)
-
-    # date format mix
     df["as_of_date"] = maybe_bad_date_format(df["as_of_date"], rng, cfg.pct_bad_date_format / 3)
 
-    # slight postal mess (ZIP+4 sometimes)
     idx = rng.choice(df.index.to_numpy(), size=min(10, len(df)), replace=False)
     df.loc[idx, "postal_code"] = df.loc[idx, "postal_code"].astype(str) + "-" + rng.integers(1000, 9999, size=len(idx)).astype(str)
 
-    # optional header drift to look like a messy extract
     return df.rename(
         columns={
             "as_of_date": "As Of Date",
@@ -782,13 +782,8 @@ def gen_dispensary_master_day(
         }
     )
 
-def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
-    """
-    Daily snapshot: for each store and SKU, whether that SKU is carried / not_carried / pending / discontinued.
 
-    Returns a MESSY dataframe with header drift:
-      As Of Date, Store Code, SKU, Distribution Status, Status Reason
-    """
+def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
     statuses = ["Carried", "Not Carried", "Pending", "Discontinued"]
     reasons = {
         "Carried": ["Active assortment", "Top seller", "Seasonal promo", "Core lineup"],
@@ -798,11 +793,8 @@ def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd
     }
 
     rows: list[dict[str, Any]] = []
-
-    # store-level "assortment intensity" so not every store carries everything
     store_intensity = {}
     for _, s in stores.iterrows():
-        # Most stores carry a decent chunk; some are sparse.
         store_intensity[s["store_id"]] = float(np.clip(rng.normal(0.70, 0.18), 0.15, 0.95))
 
     for _, s in stores.iterrows():
@@ -811,15 +803,12 @@ def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd
 
         for prod in WYLD_PRODUCTS[: cfg.n_products]:
             sku = prod["sku"]
-
-            # probability of "carried" depends on store intensity + tiny sku wiggle
             p_carried = float(np.clip(intensity + rng.normal(0.0, 0.06), 0.05, 0.98))
             r = rng.random()
 
             if r < p_carried:
                 st = "Carried"
             else:
-                # non-carried states get split
                 r2 = rng.random()
                 if r2 < 0.55:
                     st = "Not Carried"
@@ -839,18 +828,16 @@ def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd
             )
 
     df = pd.DataFrame(rows)
-    if len(df) == 0:
+    if df.empty:
         return df
 
-    # --- inject mess ---
     df = maybe_duplicates(df, rng, cfg.pct_duplicate / 2)
     df["store_code"] = maybe_missing(df["store_code"], rng, cfg.pct_missing_store / 2)
     df["sku"] = maybe_missing(df["sku"], rng, 0.01)
-    df["distribution_status"] = maybe_channel_mess(df["distribution_status"], rng, 0.10)  # casing/whitespace drift
+    df["distribution_status"] = maybe_channel_mess(df["distribution_status"], rng, 0.10)
     df["status_reason"] = maybe_trailing_spaces(df["status_reason"], rng, 0.08)
     df["as_of_date"] = maybe_bad_date_format(df["as_of_date"], rng, cfg.pct_bad_date_format / 2)
 
-    # header drift (realistic upstream export)
     return df.rename(
         columns={
             "as_of_date": "As Of Date",
@@ -866,14 +853,7 @@ def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd
 # Postgres helpers
 # -----------------------------
 
-def pg_drop_table(con, schema: str, table: str) -> None:
-    pg_exec(con, f"drop table if exists {_pg_ident(schema)}.{_pg_ident(table)};")
-
 def _try_import_psycopg():
-    """
-    Returns (module, kind) where kind is "psycopg" or "psycopg2".
-    Raises ImportError if neither is available.
-    """
     try:
         import psycopg  # type: ignore
         return psycopg, "psycopg"
@@ -895,6 +875,10 @@ def pg_exec(con, sql: str, params: Optional[tuple[Any, ...]] = None) -> None:
     with con.cursor() as cur:
         cur.execute(sql, params or None)
     con.commit()
+
+
+def pg_drop_table(con, schema: str, table: str) -> None:
+    pg_exec(con, f"drop table if exists {_pg_ident(schema)}.{_pg_ident(table)};")
 
 
 def pg_ensure_schema(con, schema: str) -> None:
@@ -924,17 +908,9 @@ def pg_ensure_table(con, schema: str, table: str, ddl_cols: list[str]) -> None:
 
 
 def pg_copy_append(con, schema: str, table: str, df: pd.DataFrame) -> None:
-    """
-    Append via COPY FROM STDIN using CSV.
-
-    Supports:
-      - psycopg (v3): cur.copy(sql) context manager
-      - psycopg2: cur.copy_expert(sql, file)
-    """
-    if len(df) == 0:
+    if df.empty:
         return
 
-    # COPY wants columns in target order; ensure stable.
     buf = StringIO()
     df.to_csv(buf, index=False, header=False)
     buf.seek(0)
@@ -962,7 +938,6 @@ def _norm_code(x: Any) -> Optional[str]:
     if s == "" or s.lower() in ("nan", "none"):
         return None
     s = s.upper()
-    # remove spaces, normalize "OR-001" -> "OR001"
     s = re.sub(r"\s+", "", s)
     s = s.replace("-", "")
     return s
@@ -974,7 +949,6 @@ def _norm_channel(x: Any) -> Optional[str]:
     s = str(x).strip().lower()
     if s == "" or s in ("nan", "none"):
         return None
-    # keep just key buckets
     if "retail" in s:
         return "retail"
     if "wholesale" in s:
@@ -1039,22 +1013,14 @@ def _ensure_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
             out[c] = None
     return out
 
+
 def standardize_sku_distribution_status(df_mess: pd.DataFrame) -> pd.DataFrame:
-    """
-    Standardizes the messy SKU distribution status snapshot into stable raw landing columns:
-      as_of_date_raw, as_of_date,
-      store_code_raw, store_code_norm,
-      sku_raw, sku_norm,
-      distribution_status_raw, distribution_status_norm,
-      status_reason_raw, status_reason_norm
-    """
     rename = {
         "As Of Date": "as_of_date_raw",
         "Store Code": "store_code_raw",
         "SKU": "sku_raw",
         "Distribution Status": "distribution_status_raw",
         "Status Reason": "status_reason_raw",
-        # tolerate already-clean headers too
         "as_of_date": "as_of_date_raw",
         "store_code": "store_code_raw",
         "sku": "sku_raw",
@@ -1063,16 +1029,7 @@ def standardize_sku_distribution_status(df_mess: pd.DataFrame) -> pd.DataFrame:
     }
 
     df = df_mess.rename(columns={k: v for k, v in rename.items() if k in df_mess.columns}).copy()
-    df = _ensure_cols(
-        df,
-        [
-            "as_of_date_raw",
-            "store_code_raw",
-            "sku_raw",
-            "distribution_status_raw",
-            "status_reason_raw",
-        ],
-    )
+    df = _ensure_cols(df, ["as_of_date_raw", "store_code_raw", "sku_raw", "distribution_status_raw", "status_reason_raw"])
 
     def _norm_distribution_status(x: Any) -> Optional[str]:
         if x is None:
@@ -1080,8 +1037,6 @@ def standardize_sku_distribution_status(df_mess: pd.DataFrame) -> pd.DataFrame:
         s = str(x).strip().lower()
         if s == "" or s in ("nan", "none"):
             return None
-
-        # IMPORTANT ordering: handle "not" before "carried"/"active"
         if "not" in s or "no " in s or "none" in s:
             return "not_carried"
         if "discont" in s or "de-list" in s or "delist" in s:
@@ -1090,32 +1045,25 @@ def standardize_sku_distribution_status(df_mess: pd.DataFrame) -> pd.DataFrame:
             return "pending"
         if "carry" in s or "active" in s or "in dist" in s or "in_distribution" in s:
             return "carried"
-
-        # fall back: keep a safe normalized token
         return s.replace(" ", "_")
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "as_of_date_raw": df["as_of_date_raw"],
             "as_of_date": df["as_of_date_raw"].map(_parse_date_any),
-
             "store_code_raw": df["store_code_raw"],
             "store_code_norm": df["store_code_raw"].map(_norm_code),
-
             "sku_raw": df["sku_raw"],
             "sku_norm": df["sku_raw"].map(_norm_code),
-
             "distribution_status_raw": df["distribution_status_raw"],
             "distribution_status_norm": df["distribution_status_raw"].map(_norm_distribution_status),
-
             "status_reason_raw": df["status_reason_raw"],
             "status_reason_norm": df["status_reason_raw"].map(lambda x: str(x).strip().lower() if x is not None else None),
         }
     )
-    return out
+
 
 def standardize_sales_distributor(df_mess: pd.DataFrame) -> pd.DataFrame:
-    # Handle header drift from generator
     rename = {
         "Sale Date": "sale_date_raw",
         "Store ID": "store_id_raw",
@@ -1125,7 +1073,6 @@ def standardize_sales_distributor(df_mess: pd.DataFrame) -> pd.DataFrame:
         "Unit List Price": "unit_list_price_raw",
         "Unit Net Price": "unit_net_price_raw",
         "Discount Rate": "discount_rate_raw",
-        # unchanged fields
         "sku": "sku",
         "product_name": "product_name_raw",
         "channel": "channel_raw",
@@ -1156,7 +1103,7 @@ def standardize_sales_distributor(df_mess: pd.DataFrame) -> pd.DataFrame:
         ],
     )
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "sale_date_raw": df["sale_date_raw"],
             "sale_date": df["sale_date_raw"].map(_parse_date_any),
@@ -1189,7 +1136,6 @@ def standardize_sales_distributor(df_mess: pd.DataFrame) -> pd.DataFrame:
             "customers": df["customers_raw"].map(_to_int_or_none),
         }
     )
-    return out
 
 
 def standardize_pos(df_raw: pd.DataFrame) -> pd.DataFrame:
@@ -1198,7 +1144,7 @@ def standardize_pos(df_raw: pd.DataFrame) -> pd.DataFrame:
         ["txn_id", "txn_ts", "store_code", "product_sku", "qty", "unit_price", "discount_pct", "gross_amount", "net_amount"],
     )
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "txn_id": df["txn_id"].map(_to_int_or_none),
             "txn_ts_raw": df["txn_ts"],
@@ -1220,7 +1166,6 @@ def standardize_pos(df_raw: pd.DataFrame) -> pd.DataFrame:
             "net_amount": df["net_amount"].map(_to_float_or_none),
         }
     )
-    return out
 
 
 def standardize_inventory_snapshot(df_mess: pd.DataFrame) -> pd.DataFrame:
@@ -1249,7 +1194,7 @@ def standardize_inventory_snapshot(df_mess: pd.DataFrame) -> pd.DataFrame:
         ],
     )
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "snapshot_date_raw": df["snapshot_date_raw"],
             "snapshot_date": df["snapshot_date_raw"].map(_parse_date_any),
@@ -1268,12 +1213,11 @@ def standardize_inventory_snapshot(df_mess: pd.DataFrame) -> pd.DataFrame:
             "backordered_units": df["backordered_units_raw"].map(_to_int_or_none),
         }
     )
-    return out
 
 
 def standardize_wms(df_raw: pd.DataFrame) -> pd.DataFrame:
     df = _ensure_cols(df_raw, ["ship_date", "shipment_id", "site_code", "sku", "units_shipped", "carrier"])
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "ship_date_raw": df["ship_date"],
             "ship_date": df["ship_date"].map(_parse_date_any),
@@ -1289,12 +1233,11 @@ def standardize_wms(df_raw: pd.DataFrame) -> pd.DataFrame:
             "carrier_norm": df["carrier"].map(lambda x: str(x).strip().upper() if x is not None else None),
         }
     )
-    return out
 
 
 def standardize_timeclock(df_raw: pd.DataFrame) -> pd.DataFrame:
     df = _ensure_cols(df_raw, ["punch_ts", "employee_id", "site_code", "action"])
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "punch_ts_raw": df["punch_ts"],
             "punch_ts_parsed": df["punch_ts"].map(_parse_ts_any),
@@ -1307,7 +1250,6 @@ def standardize_timeclock(df_raw: pd.DataFrame) -> pd.DataFrame:
             "action_norm": df["action"].map(lambda x: str(x).strip().upper() if x is not None else None),
         }
     )
-    return out
 
 
 def standardize_payroll(df_mess: pd.DataFrame) -> pd.DataFrame:
@@ -1336,7 +1278,7 @@ def standardize_payroll(df_mess: pd.DataFrame) -> pd.DataFrame:
         ],
     )
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "week_ending_raw": df["week_ending_raw"],
             "week_ending": df["week_ending_raw"].map(_parse_date_any),
@@ -1356,7 +1298,6 @@ def standardize_payroll(df_mess: pd.DataFrame) -> pd.DataFrame:
             "labor_cost": df["labor_cost_raw"].map(_to_float_or_none),
         }
     )
-    return out
 
 
 def standardize_finance_actuals(df_mess: pd.DataFrame) -> pd.DataFrame:
@@ -1369,7 +1310,7 @@ def standardize_finance_actuals(df_mess: pd.DataFrame) -> pd.DataFrame:
     df = df_mess.rename(columns=rename).copy()
     df = _ensure_cols(df, ["month_start_raw", "metric_name_raw", "actual_amount_raw", "currency_code_raw"])
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "month_start_raw": df["month_start_raw"],
             "month_start": df["month_start_raw"].map(_parse_date_any),
@@ -1381,7 +1322,6 @@ def standardize_finance_actuals(df_mess: pd.DataFrame) -> pd.DataFrame:
             "currency_code_norm": df["currency_code_raw"].map(lambda x: str(x).strip().upper() if x is not None else None),
         }
     )
-    return out
 
 
 def standardize_gl(df_raw: pd.DataFrame) -> pd.DataFrame:
@@ -1389,7 +1329,8 @@ def standardize_gl(df_raw: pd.DataFrame) -> pd.DataFrame:
         df_raw,
         ["period", "posting_date", "location_code", "account_code", "account_name", "debit_amount", "credit_amount"],
     )
-    out = pd.DataFrame(
+
+    return pd.DataFrame(
         {
             "period_raw": df["period"],
             "period_norm": df["period"].map(lambda x: str(x).strip() if x is not None else None),
@@ -1407,10 +1348,9 @@ def standardize_gl(df_raw: pd.DataFrame) -> pd.DataFrame:
             "credit_amount": df["credit_amount"].map(_to_float_or_none),
         }
     )
-    return out
+
 
 def standardize_account_status(df_mess: pd.DataFrame) -> pd.DataFrame:
-    # accept either header-drifted columns OR non-drifted (more robust)
     rename = {
         "Status Date": "status_date_raw",
         "status_date": "status_date_raw",
@@ -1430,8 +1370,6 @@ def standardize_account_status(df_mess: pd.DataFrame) -> pd.DataFrame:
         s = str(x).strip().lower()
         if s == "" or s in ("nan", "none"):
             return None
-
-        # IMPORTANT: check inactive before active
         if "inactive" in s:
             return "inactive"
         if "suspend" in s:
@@ -1442,22 +1380,19 @@ def standardize_account_status(df_mess: pd.DataFrame) -> pd.DataFrame:
             return "active"
         return s
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "status_date_raw": df["status_date_raw"],
             "status_date": df["status_date_raw"].map(_parse_date_any),
-
             "store_code_raw": df["store_code_raw"],
             "store_code_norm": df["store_code_raw"].map(_norm_code),
-
             "account_status_raw": df["account_status_raw"],
             "account_status_norm": df["account_status_raw"].map(_norm_status),
-
             "status_reason_raw": df["status_reason_raw"],
             "status_reason_norm": df["status_reason_raw"].map(lambda x: str(x).strip().lower() if x is not None else None),
         }
     )
-    return out
+
 
 def standardize_dispensary_master(df_mess: pd.DataFrame) -> pd.DataFrame:
     rename = {
@@ -1493,8 +1428,7 @@ def standardize_dispensary_master(df_mess: pd.DataFrame) -> pd.DataFrame:
         s = str(x).strip()
         if s == "" or s.lower() in ("nan", "none"):
             return None
-        s = re.sub(r"\s+", "", s)
-        return s
+        return re.sub(r"\s+", "", s)
 
     def _norm_state(x: Any) -> Optional[str]:
         if x is None:
@@ -1504,37 +1438,29 @@ def standardize_dispensary_master(df_mess: pd.DataFrame) -> pd.DataFrame:
             return None
         return s[:2]
 
-    out = pd.DataFrame(
+    return pd.DataFrame(
         {
             "as_of_date_raw": df["as_of_date_raw"],
             "as_of_date": df["as_of_date_raw"].map(_parse_date_any),
-
             "dispensary_id_raw": df["dispensary_id_raw"],
             "dispensary_id_norm": df["dispensary_id_raw"].map(_norm_code),
-
             "store_code_raw": df["store_code_raw"],
             "store_code_norm": df["store_code_raw"].map(_norm_code),
-
             "dispensary_name_raw": df["dispensary_name_raw"],
             "dispensary_name_norm": df["dispensary_name_raw"].map(lambda x: str(x).strip() if x is not None else None),
-
             "state_raw": df["state_raw"],
             "state_norm": df["state_raw"].map(_norm_state),
-
             "city_raw": df["city_raw"],
             "city_norm": df["city_raw"].map(lambda x: str(x).strip().lower() if x is not None else None),
-
             "postal_code_raw": df["postal_code_raw"],
             "postal_code_norm": df["postal_code_raw"].map(_norm_postal),
-
             "license_id_raw": df["license_id_raw"],
             "license_id_norm": df["license_id_raw"].map(lambda x: str(x).strip().upper() if x is not None else None),
-
             "account_type_raw": df["account_type_raw"],
             "account_type_norm": df["account_type_raw"].map(lambda x: str(x).strip().lower() if x is not None else None),
         }
     )
-    return out
+
 
 def add_ingestion_metadata(df: pd.DataFrame, *, load_id: str, source_system: str, cadence: str, drop_date: pd.Timestamp) -> pd.DataFrame:
     out = df.copy()
@@ -1547,14 +1473,13 @@ def add_ingestion_metadata(df: pd.DataFrame, *, load_id: str, source_system: str
 
 
 def df_for_copy(df: pd.DataFrame) -> pd.DataFrame:
-    # COPY-friendly: NaN -> None, keep strings as-is
     out = df.copy()
     out = out.where(pd.notnull(out), None)
     return out
 
 
 # -----------------------------
-# Explicit Postgres schemas (stable types)
+# Explicit Postgres schemas
 # -----------------------------
 
 DDL_TABLES: dict[str, list[str]] = {
@@ -1735,7 +1660,7 @@ DDL_TABLES: dict[str, list[str]] = {
         "drop_date date",
         "ingested_at timestamp",
     ],
-        "project1_account_status": [
+    "project1_account_status": [
         "status_date_raw text",
         "status_date date",
         "store_code_raw text",
@@ -1750,58 +1675,42 @@ DDL_TABLES: dict[str, list[str]] = {
         "drop_date date",
         "ingested_at timestamp",
     ],
-        "project1_dispensary_master": [
-        # snapshot date (optional but consistent)
+    "project1_dispensary_master": [
         "as_of_date_raw text",
         "as_of_date date",
-
-        # keys
         "dispensary_id_raw text",
         "dispensary_id_norm text",
         "store_code_raw text",
         "store_code_norm text",
-
-        # identity
         "dispensary_name_raw text",
         "dispensary_name_norm text",
-
-        # location
         "state_raw text",
         "state_norm text",
         "city_raw text",
         "city_norm text",
         "postal_code_raw text",
         "postal_code_norm text",
-
-        # optional business attrs
         "license_id_raw text",
         "license_id_norm text",
         "account_type_raw text",
         "account_type_norm text",
-
-        # ingestion metadata
         "load_id text",
         "source_system text",
         "cadence text",
         "drop_date date",
         "ingested_at timestamp",
     ],
-        "project1_sku_distribution_status": [
+    "project1_sku_distribution_status": [
         "as_of_date_raw text",
         "as_of_date date",
-
         "store_code_raw text",
         "store_code_norm text",
-
         "sku_raw text",
         "sku_norm text",
-
         "distribution_status_raw text",
         "distribution_status_norm text",
-
         "status_reason_raw text",
         "status_reason_norm text",
-
         "load_id text",
         "source_system text",
         "cadence text",
@@ -1809,14 +1718,6 @@ DDL_TABLES: dict[str, list[str]] = {
         "ingested_at timestamp",
     ],
 }
-
-
-def pg_prepare_tables(con, schema: str, tables: list[str]) -> None:
-    pg_ensure_schema(con, schema)
-    for t in tables:
-        if t not in DDL_TABLES:
-            raise SystemExit(f"Internal error: missing DDL for table: {t}")
-        pg_ensure_table(con, schema, t, DDL_TABLES[t])
 
 
 # -----------------------------
@@ -1830,7 +1731,6 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--stores", type=int, default=40)
     ap.add_argument("--products", type=int, default=15)
-
     ap.add_argument("--base", default="01_ops_command_center", help="Write outputs under this subfolder (use . for repo root)")
 
     ap.add_argument("--pg-dsn", default=os.getenv("PROJECT1_PG_DSN", ""), help="Postgres DSN (or set env PROJECT1_PG_DSN)")
@@ -1842,7 +1742,6 @@ def main() -> None:
         default=os.getenv("PROJECT1_PG_DDL_MODE", "keep"),
         help="Whether to keep existing raw tables or drop+recreate them to match the stable DDL",
     )
-
     ap.add_argument(
         "--pg-load-mode",
         choices=["append", "truncate_then_append"],
@@ -1850,18 +1749,17 @@ def main() -> None:
         help="How to load each run into the target tables",
     )
 
-    # Default raw table names (aligned to your existing raw schema naming)
-    ap.add_argument("--t-account-status", default=os.getenv("PROJECT1_T_ACCOUNT_STATUS", "account_status"), help="Raw account status table name (default: account_status)",)
+    ap.add_argument("--t-account-status", default=os.getenv("PROJECT1_T_ACCOUNT_STATUS", "account_status"))
     ap.add_argument("--t-dispensary-master", default=os.getenv("PROJECT1_T_DISPENSARY_MASTER", "dispensary_master"))
     ap.add_argument("--t-sales-distributor", default=os.getenv("PROJECT1_T_SALES_DISTRIBUTOR", "sales_distributor_extract"))
-    ap.add_argument("--t-pos",              default=os.getenv("PROJECT1_T_POS",              "pos_transactions_csv"))
-    ap.add_argument("--t-inventory",        default=os.getenv("PROJECT1_T_INVENTORY",        "inventory_erp_snapshot"))
-    ap.add_argument("--t-wms",              default=os.getenv("PROJECT1_T_WMS",              "wms_shipments"))
-    ap.add_argument("--t-timeclock",        default=os.getenv("PROJECT1_T_TIMECLOCK",        "timeclock_punches"))
-    ap.add_argument("--t-payroll",          default=os.getenv("PROJECT1_T_PAYROLL",          "labor_hours_payroll_export"))
-    ap.add_argument("--t-finance-actuals",  default=os.getenv("PROJECT1_T_FIN_ACTUALS",      "finance_actuals_summary"))
-    ap.add_argument("--t-gl",               default=os.getenv("PROJECT1_T_GL",               "gl_detail_csv"))
-    ap.add_argument("--t-sku-distribution-status", default=os.getenv("PROJECT1_T_SKU_DISTRIBUTION_STATUS", "sku_distribution_status"),help="Raw SKU distribution status table name",)
+    ap.add_argument("--t-pos", default=os.getenv("PROJECT1_T_POS", "pos_transactions_csv"))
+    ap.add_argument("--t-inventory", default=os.getenv("PROJECT1_T_INVENTORY", "inventory_erp_snapshot"))
+    ap.add_argument("--t-wms", default=os.getenv("PROJECT1_T_WMS", "wms_shipments"))
+    ap.add_argument("--t-timeclock", default=os.getenv("PROJECT1_T_TIMECLOCK", "timeclock_punches"))
+    ap.add_argument("--t-payroll", default=os.getenv("PROJECT1_T_PAYROLL", "labor_hours_payroll_export"))
+    ap.add_argument("--t-finance-actuals", default=os.getenv("PROJECT1_T_FIN_ACTUALS", "finance_actuals_summary"))
+    ap.add_argument("--t-gl", default=os.getenv("PROJECT1_T_GL", "gl_detail_csv"))
+    ap.add_argument("--t-sku-distribution-status", default=os.getenv("PROJECT1_T_SKU_DISTRIBUTION_STATUS", "sku_distribution_status"))
 
     args = ap.parse_args()
 
@@ -1883,12 +1781,12 @@ def main() -> None:
 
     load_id = uuid.uuid4().hex[:12]
 
-    # Postgres
+    # clean truth accumulators
+    sales_truth_daily_rows: list[pd.DataFrame] = []
+    labor_truth_weekly_rows: list[pd.DataFrame] = []
+
     con = pg_connect(args.pg_dsn)
 
-    # Map chosen table names to canonical DDL definitions:
-    # We’ll create the *named* tables using the canonical DDL list by temporarily binding names.
-    # To keep it simple: require users to keep defaults OR accept that custom names use same DDL.
     selected_tables = [
         args.t_sales_distributor,
         args.t_pos,
@@ -1903,9 +1801,6 @@ def main() -> None:
         args.t_sku_distribution_status,
     ]
 
-    # Build DDL on the fly for custom table names by copying canonical DDL
-    # (We key DDL_TABLES by canonical names; here we just ensure each selected table exists.)
-    pg_ensure_schema(con, args.pg_schema)
     canonical_map = {
         args.t_sales_distributor: "project1_sales_distributor",
         args.t_pos: "project1_pos_transactions",
@@ -1918,7 +1813,9 @@ def main() -> None:
         args.t_account_status: "project1_account_status",
         args.t_dispensary_master: "project1_dispensary_master",
         args.t_sku_distribution_status: "project1_sku_distribution_status",
-            }
+    }
+
+    pg_ensure_schema(con, args.pg_schema)
     for actual_name, canonical in canonical_map.items():
         if args.pg_ddl_mode == "drop_and_create":
             pg_drop_table(con, args.pg_schema, actual_name)
@@ -1963,8 +1860,10 @@ def main() -> None:
     # DAILY
     # -------------------------
     for d in day_range:
-        # sales: distributor CSV
-        dist_mess = gen_sales_distributor_day(cfg, rng, d, stores)
+        # sales distributor
+        dist_clean, dist_mess = gen_sales_distributor_day(cfg, rng, d, stores)
+        sales_truth_daily_rows.append(dist_clean[["sale_date", "gross_sales", "net_sales", "cogs"]].copy())
+
         p_in = incoming_dir(root, "sales", "distributor", d)
         p_cur = current_dir(root, "sales", "distributor")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -1985,7 +1884,6 @@ def main() -> None:
             notes="messy headers + duplicates + missing Store ID + channel casing/whitespace + date format mix",
         )
 
-        # sales: distributor -> Postgres raw
         dist_std = standardize_sales_distributor(dist_mess)
         dist_std = add_ingestion_metadata(dist_std, load_id=load_id, source_system="sales_distributor", cadence="daily", drop_date=d)
         dist_std = df_for_copy(dist_std)
@@ -2002,9 +1900,8 @@ def main() -> None:
             target=f"{args.pg_schema}.{args.t_sales_distributor}",
         )
 
-        # reference: account status CSV + Postgres raw
+        # account status
         acct_mess = gen_account_status_day(cfg, rng, d, stores)
-
         p_in = incoming_dir(root, "reference", "crm", d)
         p_cur = current_dir(root, "reference", "crm")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2014,7 +1911,6 @@ def main() -> None:
         f_cur = p_cur / "account_status.csv"
         acct_mess.to_csv(f_in, index=False)
         acct_mess.to_csv(f_cur, index=False)
-
         log(
             domain="reference",
             system="crm",
@@ -2029,9 +1925,7 @@ def main() -> None:
         acct_std = standardize_account_status(acct_mess)
         acct_std = add_ingestion_metadata(acct_std, load_id=load_id, source_system="reference_account_status", cadence="daily", drop_date=d)
         acct_std = df_for_copy(acct_std)
-
         pg_copy_append(con, args.pg_schema, args.t_account_status, acct_std)
-
         log(
             domain="reference",
             system="crm",
@@ -2044,9 +1938,8 @@ def main() -> None:
             target=f"{args.pg_schema}.{args.t_account_status}",
         )
 
-        # reference: dispensary master CSV + Postgres raw
+        # dispensary master
         disp_mess = gen_dispensary_master_day(cfg, rng, d, stores)
-
         p_in = incoming_dir(root, "reference", "dispensary_master", d)
         p_cur = current_dir(root, "reference", "dispensary_master")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2056,7 +1949,6 @@ def main() -> None:
         f_cur = p_cur / "dispensary_master.csv"
         disp_mess.to_csv(f_in, index=False)
         disp_mess.to_csv(f_cur, index=False)
-
         log(
             domain="reference",
             system="dispensary_master",
@@ -2069,17 +1961,9 @@ def main() -> None:
         )
 
         disp_std = standardize_dispensary_master(disp_mess)
-        disp_std = add_ingestion_metadata(
-            disp_std,
-            load_id=load_id,
-            source_system="reference_dispensary_master",
-            cadence="daily",
-            drop_date=d,
-        )
+        disp_std = add_ingestion_metadata(disp_std, load_id=load_id, source_system="reference_dispensary_master", cadence="daily", drop_date=d)
         disp_std = df_for_copy(disp_std)
-
         pg_copy_append(con, args.pg_schema, args.t_dispensary_master, disp_std)
-
         log(
             domain="reference",
             system="dispensary_master",
@@ -2091,10 +1975,9 @@ def main() -> None:
             notes="loaded standardized dispensary_master into postgres",
             target=f"{args.pg_schema}.{args.t_dispensary_master}",
         )
-        # --- DAILY: sku distribution status (CSV + Postgres raw) ---
-        sku_dist_mess = gen_sku_distribution_status_day(cfg, rng, d, stores)
 
-        # write messy file drops
+        # sku distribution status
+        sku_dist_mess = gen_sku_distribution_status_day(cfg, rng, d, stores)
         p_in = incoming_dir(root, "reference", "assortment", d)
         p_cur = current_dir(root, "reference", "assortment")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2104,7 +1987,6 @@ def main() -> None:
         f_cur = p_cur / "sku_distribution_status.csv"
         sku_dist_mess.to_csv(f_in, index=False)
         sku_dist_mess.to_csv(f_cur, index=False)
-
         log(
             domain="reference",
             system="assortment",
@@ -2116,19 +1998,10 @@ def main() -> None:
             notes="sku distribution status snapshot; casing/whitespace drift; occasional missing store_code/sku; mixed date formats",
         )
 
-        # standardize + load to Postgres raw
         sku_dist_std = standardize_sku_distribution_status(sku_dist_mess)
-        sku_dist_std = add_ingestion_metadata(
-            sku_dist_std,
-            load_id=load_id,
-            source_system="reference_sku_distribution_status",
-            cadence="daily",
-            drop_date=d,
-        )
+        sku_dist_std = add_ingestion_metadata(sku_dist_std, load_id=load_id, source_system="reference_sku_distribution_status", cadence="daily", drop_date=d)
         sku_dist_std = df_for_copy(sku_dist_std)
-
         pg_copy_append(con, args.pg_schema, args.t_sku_distribution_status, sku_dist_std)
-
         log(
             domain="reference",
             system="assortment",
@@ -2140,7 +2013,8 @@ def main() -> None:
             notes="loaded standardized sku_distribution_status into postgres",
             target=f"{args.pg_schema}.{args.t_sku_distribution_status}",
         )
-        # sales: pos CSV
+
+        # pos
         pos_raw = gen_pos_transactions_day(cfg, rng, d, stores)
         p_in = incoming_dir(root, "sales", "pos", d)
         p_cur = current_dir(root, "sales", "pos")
@@ -2162,7 +2036,6 @@ def main() -> None:
             notes="row-level POS; some bad datetime formats; missing store_code possible",
         )
 
-        # sales: pos -> Postgres raw
         pos_std = standardize_pos(pos_raw)
         pos_std = add_ingestion_metadata(pos_std, load_id=load_id, source_system="sales_pos", cadence="daily", drop_date=d)
         pos_std = df_for_copy(pos_std)
@@ -2179,7 +2052,7 @@ def main() -> None:
             target=f"{args.pg_schema}.{args.t_pos}",
         )
 
-        # ops: inventory snapshot CSV
+        # inventory snapshot
         inv_mess = gen_inventory_snapshot_day(cfg, rng, d, stores)
         p_in = incoming_dir(root, "ops", "erp", d)
         p_cur = current_dir(root, "ops", "erp")
@@ -2201,7 +2074,6 @@ def main() -> None:
             notes="negative On Hand exceptions; site code drift (lowercase + hyphen)",
         )
 
-        # ops: inventory -> Postgres raw
         inv_std = standardize_inventory_snapshot(inv_mess)
         inv_std = add_ingestion_metadata(inv_std, load_id=load_id, source_system="ops_erp_inventory", cadence="daily", drop_date=d)
         inv_std = df_for_copy(inv_std)
@@ -2218,7 +2090,7 @@ def main() -> None:
             target=f"{args.pg_schema}.{args.t_inventory}",
         )
 
-        # ops: wms shipments CSV
+        # wms shipments
         wms_raw = gen_wms_shipments_day(cfg, rng, d, stores)
         p_in = incoming_dir(root, "ops", "wms", d)
         p_cur = current_dir(root, "ops", "wms")
@@ -2240,7 +2112,6 @@ def main() -> None:
             notes="duplicates; occasional missing sku",
         )
 
-        # ops: wms -> Postgres raw
         wms_std = standardize_wms(wms_raw)
         wms_std = add_ingestion_metadata(wms_std, load_id=load_id, source_system="ops_wms_shipments", cadence="daily", drop_date=d)
         wms_std = df_for_copy(wms_std)
@@ -2257,7 +2128,7 @@ def main() -> None:
             target=f"{args.pg_schema}.{args.t_wms}",
         )
 
-        # people: timeclock CSV
+        # timeclock
         tc_raw = gen_timeclock_day(cfg, rng, d, stores)
         p_in = incoming_dir(root, "people", "timeclock", d)
         p_cur = current_dir(root, "people", "timeclock")
@@ -2279,7 +2150,6 @@ def main() -> None:
             notes="missing OUT punches; mixed timestamp formats",
         )
 
-        # people: timeclock -> Postgres raw
         tc_std = standardize_timeclock(tc_raw)
         tc_std = add_ingestion_metadata(tc_std, load_id=load_id, source_system="people_timeclock", cadence="daily", drop_date=d)
         tc_std = df_for_copy(tc_std)
@@ -2300,7 +2170,9 @@ def main() -> None:
     # WEEKLY
     # -------------------------
     for we in week_range:
-        payroll_mess = gen_payroll_week(cfg, rng, we, stores)
+        payroll_clean, payroll_mess = gen_payroll_week(cfg, rng, we, stores)
+        labor_truth_weekly_rows.append(payroll_clean[["week_ending", "labor_cost"]].copy())
+
         p_in = incoming_dir(root, "people", "payroll", we)
         p_cur = current_dir(root, "people", "payroll")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2312,6 +2184,7 @@ def main() -> None:
             payroll_mess.to_excel(w, index=False, sheet_name="payroll")
         with pd.ExcelWriter(f_cur, engine="openpyxl") as w:
             payroll_mess.to_excel(w, index=False, sheet_name="payroll")
+
         log(
             domain="people",
             system="payroll",
@@ -2323,11 +2196,11 @@ def main() -> None:
             notes="team spelling variation; zero-hour rows with cost",
         )
 
-        # payroll -> Postgres raw
         payroll_std = standardize_payroll(payroll_mess)
         payroll_std = add_ingestion_metadata(payroll_std, load_id=load_id, source_system="people_payroll", cadence="weekly", drop_date=we)
         payroll_std = df_for_copy(payroll_std)
         pg_copy_append(con, args.pg_schema, args.t_payroll, payroll_std)
+
         log(
             domain="people",
             system="payroll",
@@ -2341,19 +2214,43 @@ def main() -> None:
         )
 
     # -------------------------
+    # Build monthly truth inputs
+    # -------------------------
+    if sales_truth_daily_rows:
+        sales_truth_daily = pd.concat(sales_truth_daily_rows, ignore_index=True)
+        sales_truth_daily["sale_date"] = pd.to_datetime(sales_truth_daily["sale_date"], errors="coerce")
+        sales_monthly = (
+            sales_truth_daily
+            .assign(period_month=sales_truth_daily["sale_date"].dt.to_period("M").dt.to_timestamp())
+            .groupby("period_month", as_index=False)[["gross_sales", "net_sales", "cogs"]]
+            .sum()
+        )
+    else:
+        sales_monthly = pd.DataFrame(columns=["period_month", "gross_sales", "net_sales", "cogs"])
+
+    if labor_truth_weekly_rows:
+        labor_truth_weekly = pd.concat(labor_truth_weekly_rows, ignore_index=True)
+        labor_truth_weekly["week_ending"] = pd.to_datetime(labor_truth_weekly["week_ending"], errors="coerce")
+        labor_monthly = (
+            labor_truth_weekly
+            .assign(period_month=labor_truth_weekly["week_ending"].dt.to_period("M").dt.to_timestamp())
+            .groupby("period_month", as_index=False)[["labor_cost"]]
+            .sum()
+        )
+    else:
+        labor_monthly = pd.DataFrame(columns=["period_month", "labor_cost"])
+
+    # -------------------------
     # MONTHLY
     # -------------------------
     for ms in month_range:
-        # finance actuals xlsx
-        # fin_mess = gen_finance_actuals_month(cfg, rng, ms)
-
-        # use truth data instead of generating new data
         fin_mess = gen_finance_actuals_month_from_truth(
             rng=rng,
             month_start=ms,
             sales_monthly=sales_monthly,
             labor_monthly=labor_monthly,
         )
+
         p_in = incoming_dir(root, "finance", "erp_finance", ms)
         p_cur = current_dir(root, "finance", "erp_finance")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2365,6 +2262,7 @@ def main() -> None:
             fin_mess.to_excel(w, index=False, sheet_name="actuals")
         with pd.ExcelWriter(f_cur, engine="openpyxl") as w:
             fin_mess.to_excel(w, index=False, sheet_name="actuals")
+
         log(
             domain="finance",
             system="erp_finance",
@@ -2373,14 +2271,14 @@ def main() -> None:
             file_path=f_in,
             file_type="xlsx",
             rows=len(fin_mess),
-            notes="metric label variance; small drift",
+            notes="metric label variance; finance derived from clean monthly truth with small drift",
         )
 
-        # finance actuals -> Postgres raw
         fin_std = standardize_finance_actuals(fin_mess)
         fin_std = add_ingestion_metadata(fin_std, load_id=load_id, source_system="finance_actuals", cadence="monthly", drop_date=ms)
         fin_std = df_for_copy(fin_std)
         pg_copy_append(con, args.pg_schema, args.t_finance_actuals, fin_std)
+
         log(
             domain="finance",
             system="erp_finance",
@@ -2389,16 +2287,16 @@ def main() -> None:
             file_path=None,
             file_type="postgres",
             rows=len(fin_std),
-            notes="loaded standardized into postgres",
+            notes="loaded standardized finance actuals into postgres",
             target=f"{args.pg_schema}.{args.t_finance_actuals}",
         )
 
-        # finance gl -> Postgres raw (still a DB “export” conceptually)
         gl_raw = gen_gl_detail_month(cfg, rng, ms, stores)
         gl_std = standardize_gl(gl_raw)
         gl_std = add_ingestion_metadata(gl_std, load_id=load_id, source_system="finance_gl", cadence="monthly", drop_date=ms)
         gl_std = df_for_copy(gl_std)
         pg_copy_append(con, args.pg_schema, args.t_gl, gl_std)
+
         log(
             domain="finance",
             system="gl",
