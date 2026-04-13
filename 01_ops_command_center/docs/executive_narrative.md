@@ -290,22 +290,22 @@ The first version of the report is intended to follow a command-center layout ra
 
 ### Planned page structure
 
-1. **Executive Overview**  
+1. **Executive Overview**
    High-level KPI summary across sales, margin, labor productivity, inventory health, and trust signals.
 
-2. **Sales & Margin**  
+2. **Sales & Margin**
    Trend, mix, discount impact, and gross margin movement.
 
-3. **Ops & Inventory**  
+3. **Ops & Inventory**
    In-stock performance, days of supply, shipment flow, and inventory coverage risk.
 
-4. **People & Productivity**  
+4. **People & Productivity**
    Labor hours, labor cost, and sales-per-labor-hour analysis.
 
-5. **Reconciliation & Data Health**  
+5. **Reconciliation & Data Health**
    Pass/fail counts, major variances, freshness, and known simulation-related warnings.
 
-6. **Detail Drillthrough**  
+6. **Detail Drillthrough**
    Investigative detail by date, store, SKU, metric, or control issue.
 
 The point of this structure is to let users move from headline KPIs to operational explanation without needing to understand the underlying SQL.
