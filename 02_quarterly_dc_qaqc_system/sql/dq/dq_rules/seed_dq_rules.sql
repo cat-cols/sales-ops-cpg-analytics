@@ -1,1 +1,0 @@
--- Seed DQ rules

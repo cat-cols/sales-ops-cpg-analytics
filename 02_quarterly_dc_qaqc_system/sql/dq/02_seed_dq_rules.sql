@@ -45,6 +45,19 @@ values
     true,
     current_date
 ),
+(
+    'Required key present - inventory',
+    'completeness',
+    'stg.stg_inventory_quarterly',
+    'quarter_id, week_end_date, warehouse_id, sku_id',
+    'critical',
+    0.0000,
+    'Inventory records must contain quarter_id, week_end_date, warehouse_id, and sku_id.',
+    'Missing required business keys prevents trusted inventory reporting and downstream reasonability checks.',
+    'Supply Chain / Inventory Control',
+    true,
+    current_date
+),
 
 -- 2) Uniqueness
 (
