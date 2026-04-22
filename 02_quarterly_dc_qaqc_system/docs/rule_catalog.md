@@ -1,1 +1,0 @@
-# DQ Rule Catalog
