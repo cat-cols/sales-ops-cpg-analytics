@@ -1,0 +1,4 @@
+- what the current quarter shows
+- what failed
+- why certification is on hold
+- what a stakeholder should do next
