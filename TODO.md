@@ -66,7 +66,6 @@ Example (replace paths once added):
 ## Results / Insights
 - [ ] Add one “Results / Insights” section in root README with 3–5 bullets (what business questions Project 1 answers). Right now you describe architecture and process well, but business outcomes need one more spotlight
 
-
 ---
 ---
 
