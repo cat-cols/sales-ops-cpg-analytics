@@ -1,6 +1,9 @@
 # TODO
 
 ## TOP PRIORITY
+- [ ] align data between projects
+    - [ ] update generators so they pull from shared seed files
+
 - [ ] Add semantic model test queries to validation folder
 - [ ] refactor customers as entity types: wholesale, retail/direct?
 
@@ -47,7 +50,6 @@
 - [ ] Add 2–3 screenshots (even placeholders) ASAP — that gives the repo instant visual credibility
 - [ ] If you want, I can also write a **killer Project 1 README** next so the root README links into something equally polished.
 
-
 ## Screenshots (add these to strengthen the repo)
 Add these to `assets/screenshots/` and embed them here:
 
@@ -76,3 +78,6 @@ Example (replace paths once added):
 # Add screenshots
 - [ ] A dashboard screenshot mock is fine if Power BI isn’t actually runnable on Mac.
 - [ ] A “DQ/reconciliation checks passing” screenshot (even from SQL output) is catnip for this job.
+
+# Future Iterations
+- [ ] Add dbt project structure and models

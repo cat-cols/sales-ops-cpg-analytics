@@ -1,56 +1,42 @@
-# Wyld Style Business Analyst Portfolio
-
-
-![Project](https://img.shields.io/badge/flagship-Ops%20Command%20Center-4f46e5)
-![Build Status](https://img.shields.io/badge/build-core%20analytics%20layers%20built-16a34a)
-![Reporting Layer](https://img.shields.io/badge/reporting%20layer-in%20progress-f59e0b)
-
-**Status:** Core analytics build substantially complete
-**Strongest layers:** Staging, conformance, marts, QA, reconciliation
-**Current focus:** Semantic-model planning, validation documentation, and report-layer design
-
-> OR...
+# Wyld-Style Business Analyst Portfolio
 
 ![Project](https://img.shields.io/badge/flagship-Ops%20Command%20Center-4f46e5)
-![Phase](https://img.shields.io/badge/project%201-phase%205%2F6%20in%20progress-orange)
-![Build Status](https://img.shields.io/badge/build-core%20analytics%20layers%20built-16a34a)
-![Status](https://img.shields.io/badge/status-core%20build%20substantially%20complete-brightgreen)
-![Layer](https://img.shields.io/badge/focus-SQL%20%7C%20QA%20%7C%20reconciliation-blue)
-![Validation](https://img.shields.io/badge/validation-QA%20%2B%20reconciliation%20implemented-0ea5e9)
-![Reporting](https://img.shields.io/badge/semantic%20model-planned%20%2F%20in%20progress-lightgrey)
-![Reporting Layer](https://img.shields.io/badge/reporting%20layer-semantic%20model%20in%20progress-f59e0b)
+![Status](https://img.shields.io/badge/status-active%20multi--project%20portfolio-brightgreen)
+![Focus](https://img.shields.io/badge/focus-SQL%20%7C%20QA%2FQC%20%7C%20reconciliation-blue)
+![Docs](https://img.shields.io/badge/docs-playbooks%20%7C%20rules%20%7C%20methodology-0ea5e9)
 
-This repo is organized as a multi-project portfolio program.
+A multi-project analytics portfolio designed to simulate realistic Business Analyst and Analytics Engineering work across messy source intake, standardization, QA/QC, reconciliation, semantic-model planning, and decision-ready reporting.
 
-A portfolio repository that simulates a real Business Analyst / Analytics workflow:
+This repository is built to show more than dashboarding. It is meant to demonstrate how analytical work holds up when the environment is messy: inconsistent source files, data quality failures, reconciliation gaps, documentation requirements, and reporting controls.
 
+**Workflow focus:**
 **source intake → standardization → QA/QC → reconciliation → semantic model → executive reporting**
-
-This repo is built to demonstrate business analysis and analytics engineering habits in a realistic operating environment: messy inputs, documented controls, reusable SQL patterns, semantic model planning, and decision-ready reporting outputs.
 
 ---
 
 ## What this repo proves
 
-- **Cross-functional analytics thinking** (Sales, Operations, Labor, Sustainability)
-- **Data quality and reconciliation discipline** (not just dashboards)
-- **SQL-first modeling habits** (staging → conformance → marts → validation)
-- **BI/semantic model planning** (DAX catalogs, relationships, naming conventions)
-- **Documentation maturity** (playbooks, source registers, metric dictionary, methodology)
-- **Portfolio-ready project structure** with reusable templates and standards
+- **Cross-functional analytics thinking** across Sales, Operations, Labor, Forecasting, and Sustainability
+- **Data quality and reconciliation discipline**, not just report-building
+- **SQL-first modeling habits** from staging to conformance to marts to validation
+- **Documentation maturity** through playbooks, source registers, reconciliation logs, and methodology docs
+- **Portfolio-ready project structure** with reusable templates, shared standards, and realistic project scoping
+- **Business-facing communication** through walkthroughs, release notes, and reporting narratives
 
 ---
 
-## Current project status
+## Current portfolio status
 
-### ✅ Included now
-- **shared/** — reusable SQL, semantic model, governance, and source-system templates
+### Most complete now
+- **01_ops_command_center** — flagship integrated analytics project
+- **02_quarterly_dc_qaqc_system** — governed quarterly QA/QC and reconciliation workflow
 
-### 🚧 In progress / planned
-- **01_ops_command_center** — integrated Sales/Ops/Labor BI + reconciliation focus
-- **02_quarterly_dc_qaqc_system** — data quality / QAQC system scaffolding and docs
-- **03_forecasting_variance_story** — forecasting + variance analysis project (planned next)
-- **04_ghg_scope_reporting** — sustainability reporting + auditability scaffolding and docs
+### In progress / planned next
+- **03_forecasting_variance_story** — forecasting + variance analysis
+- **04_ghg_scope_reporting** — sustainability reporting + audit-ready documentation
+
+### Shared across projects
+- **shared/** — reusable SQL, semantic-model, governance, and documentation templates
 
 ---
 
@@ -60,12 +46,12 @@ This repo is built to demonstrate business analysis and analytics engineering ha
 .
 ├── 01_ops_command_center/               # Flagship BI + reconciliation project
 │   ├── data/
-│   ├── sql/                             # staging / conformance / marts / validation
-│   ├── powerbi/                         # semantic model + report page docs
+│   ├── sql/
+│   ├── powerbi/
 │   ├── docs/
 │   └── reports/
-├── 02_quarterly_dc_qaqc_system/         # DQ/QAQC controls + scorecard project
-├── 03_forecasting_variance_story        # Forecasting + variance analysis project (planned next)
+├── 02_quarterly_dc_qaqc_system/         # Quarterly QA/QC + reconciliation project
+├── 03_forecasting_variance_story/       # Forecasting + variance analysis
 ├── 04_ghg_scope_reporting/              # GHG / ESG reporting + assurance-ready docs
 ├── shared/                              # Reusable patterns/templates across projects
 │   ├── sql/
@@ -119,47 +105,46 @@ source .venv/bin/activate
 python scripts/generate_project1_data.py
 ```
 
-> **Note:** Project 1 sample generation is the most complete workflow right now. Some other script files are scaffold placeholders and will be filled in as the portfolio is finalized.
+> **Note:** Project 1 currently has the most complete end-to-end sample generation workflow. Other projects use a mix of implemented assets and scaffolding as the portfolio is finalized.
 
 ---
 
-## Data strategy (important)
+## Data strategy
 
-This repo is intentionally kept lightweight for GitHub.
+This repository is intentionally kept lightweight for GitHub review.
 
 ### Tracked in Git
 
-* Code
+* code
 * SQL
-* Docs
-* Templates
-* Small sample files / placeholders
-* Diagrams and screenshots
+* docs
+* templates
+* small sample files
+* diagrams and screenshots
 
 ### Not tracked in Git
 
-* Large databases (`.db`, `.sqlite`)
-* Large raw extracts
-* Large modeled outputs
-* Local runtime `environment/` data
-* Archives / zip bundles
+* large databases (`.db`, `.sqlite`)
+* large raw extracts
+* large modeled outputs
+* local runtime `environment/` data
+* archives / zip bundles
 
-Large synthetic datasets and database files are intended to be distributed via **GitHub Releases** (or generated locally) so the repo stays fast to clone and easy to review.
+Large synthetic datasets and local database artifacts are intended to be generated locally or distributed separately so the repo stays easy to clone and review.
 
 ---
 
 ## Synthetic enterprise analytics sandbox
 
-This portfolio includes a synthetic “Wyld-like” enterprise analytics sandbox (local use) designed to simulate realistic business analyst workflows across multiple domains.
+This portfolio uses a synthetic “Wyld-like” analytics environment designed to simulate realistic business analyst workflows across multiple domains.
 
 ### Synthetic environment highlights
-
 * **Date range:** 2022-01-01 to 2026-02-23
 * **Domains:** Sales, Inventory, Labor, Forecasting, Emissions
 * **Shared dimensions:** Date, Product, Location, Channel, Employee Group
-* **Database support:** SQLite + SQL load script patterns for PostgreSQL / SQL Server
+* **Database support:** local SQL workflows with patterns adaptable to PostgreSQL / DuckDB / SQL Server
 
-### Example row counts (synthetic)
+### Example synthetic row counts
 
 * `fact_sales` — 356,030
 * `fact_inventory` — 422,124
@@ -167,7 +152,7 @@ This portfolio includes a synthetic “Wyld-like” enterprise analytics sandbox
 * `fact_forecast` — 367,284
 * `fact_emissions` — 13,714
 
-> This data is **synthetic** (fake but realistic-ish) and is used only for practice, portfolio demonstration, and workflow design.
+> All data in this repository is **synthetic** and used only for practice, portfolio demonstration, and workflow design.
 
 ---
 
@@ -175,124 +160,151 @@ This portfolio includes a synthetic “Wyld-like” enterprise analytics sandbox
 
 ## 01 — Ops Command Center (Sales + Ops + Labor BI)
 
-**Goal:** Build a decision-ready “command center” that integrates cross-functional data and includes a reconciliation/control layer.
+**Goal:** Build a decision-ready command center that integrates cross-functional data with reconciliation and control logic.
 
 ### What it demonstrates
 
-* Cross-functional KPI design
-* Source-to-model reconciliation
-* Star schema modeling habits
-* Power BI semantic model planning
-* Executive walkthrough documentation
+* cross-functional KPI design
+* source-to-model reconciliation
+* dimensional modeling and mart design
+* SQL validation and QA patterns
+* semantic-model and report planning
+* executive walkthrough documentation
 
-### Core folders
+### Key folders
 
-* `01_ops_command_center/sql/` — staging, conformance, marts, validation
-* `01_ops_command_center/powerbi/semantic_model/` — DAX catalog, relationships, naming conventions
-* `01_ops_command_center/docs/` — source register, stakeholder notes, reconciliation logs
-* `01_ops_command_center/reports/` — scheduled exports, ad hoc requests, deck outlines
+* [`01_ops_command_center/sql/`](01_ops_command_center/sql/) — staging, conformance, marts, validation
+* [`01_ops_command_center/docs/`](01_ops_command_center/docs/) — source register, stakeholder notes, reconciliation logs
+* [`01_ops_command_center/powerbi/`](01_ops_command_center/powerbi/) — semantic model planning and report structure
+* [`01_ops_command_center/reports/`](01_ops_command_center/reports/) — exports, ad hoc requests, deck outlines
 
 ---
 
 ## 02 — Quarterly Data Collection + QA/QC System
 
-**Goal:** Simulate a repeatable quarterly data intake and QA process with DQ rules, exceptions, and reconciliation outputs.
+**Goal:** Simulate a governed quarterly intake, validation, reconciliation, and certification workflow for messy departmental submissions.
 
 ### What it demonstrates
 
-* QA/QC process design
+* quarterly data intake process design
 * DQ rule governance
-* Exceptions handling
-* Release notes / rules change discipline
-* Reporting integrity before publication
+* record-level exceptions handling
+* release notes / rules change discipline
+* operational-to-finance reconciliation
+* reporting integrity before publication
+* hold-or-certify decision support
 
-### Planned/active deliverables
+### Current implemented outputs
+* staged quarterly source views
+* governed `dq_rules`, run log, results fact, exceptions detail, and recon tables
+* first-pass completeness, uniqueness, and validity checks
+* reporting views for:
+  * `vw_dq_scorecard`
+  * `vw_open_exceptions`
+  * `vw_reconciliation_summary`
+  * `certified_quarterly_reporting`
+* project documentation including:
+  * quarterly data collection playbook
+  * rules catalog
+  * reconciliation guide
+  * release notes
 
-* DQ rules seed table (`sql/dq_rules/`)
-* DQ scorecard reporting outputs
-* Quarterly playbook + release notes
-* Exceptions/reconciliation workflows
+### Key folders
+
+* [`02_quarterly_dc_qaqc_system/sql/`](02_quarterly_dc_qaqc_system/sql/)
+* [`02_quarterly_dc_qaqc_system/docs/`](02_quarterly_dc_qaqc_system/docs/)
+* [`02_quarterly_dc_qaqc_system/README.md`](02_quarterly_dc_qaqc_system/README.md)
+
+---
+
+## 03 — Forecasting + Variance Story
+
+**Goal:** Build a forecasting and variance-analysis project that explains not just what happened, but why actuals diverged from plan.
+
+### Planned focus
+
+* forecast vs actual comparisons
+* variance decomposition
+* business-driver framing
+* narrative reporting for commercial and finance audiences
 
 ---
 
 ## 04 — GHG Scope Reporting + Audit-Ready Documentation
 
-**Goal:** Build a sustainability reporting workflow with clear assumptions, factor versioning, lineage, and audit-friendly documentation.
+**Goal:** Build a sustainability reporting workflow with methodology clarity, factor versioning, lineage, and audit-friendly controls.
 
 ### What it demonstrates
 
-* Auditability and controls mindset
-* Methodology documentation
-* Source-to-metric lineage
-* Reconciliation checks for ESG-style reporting
-* External assurance readiness practices
+* auditability and controls mindset
+* methodology documentation
+* source-to-metric lineage
+* sustainability reporting structure
+* assurance-readiness practices
 
 ### Planned/active deliverables
 
-* `docs/Methodology.md`
-* Change log + lineage notes
-* Assurance request checklist
-* Sustainability scorecard/report scaffolding
+* methodology documentation
+* factor/version tracking
+* assurance request checklist
+* sustainability scorecard/report scaffolding
 
 ---
 
 ## Shared standards across projects
 
-This repo uses a `shared/` layer to show repeatable operating discipline:
+This repo uses a `shared/` layer to show repeatable operating discipline across projects.
 
-* **`shared/source_systems/`** — source register templates, file naming standards, ingestion checklists
-* **`shared/semantic_model/`** — relationship standards, DAX patterns, QA checklist
-* **`shared/sql/`** — reusable KPI and reporting SQL patterns
-* **`shared/templates/`** — SOPs, methodology, reconciliation templates
+* [`shared/source_systems/`](shared/source_systems/) — source register templates, naming standards, ingestion checklists
+* [`shared/semantic_model/`](shared/semantic_model/) — relationship standards, naming patterns, QA checklists
+* [`shared/sql/`](shared/sql/) — reusable SQL and KPI patterns
+* [`shared/templates/`](shared/templates/) — SOPs, methodology, reconciliation templates
 
-This is intentional: the point is to show not just analysis, but **repeatable analytics operations**.
+This is intentional: the repo is meant to show not just analysis, but **repeatable analytics operations**.
 
 ---
 
 ## Tech stack
 
-* **SQL** (Postgres / DuckDB style workflows)
-* **Python** (pandas, numpy, openpyxl, pyarrow)
-* **Power BI** (semantic model + report design documentation)
-* **Data Quality** (Great Expectations, Pandera — planned/partial integration)
-* **Forecasting** (statsmodels / Prophet — planned in Project 3)
-* **Documentation-first workflow** (metric dictionary, source register, methodology, release notes)
+* **SQL** — PostgreSQL / DuckDB-style workflows
+* **Python** — pandas, numpy, openpyxl, pyarrow
+* **Power BI** — semantic-model and report-design planning
+* **Data Quality** — rules-driven QA/QC workflows
+* **Forecasting** — planned Project 3 expansion
+* **Documentation-first workflow** — playbooks, source registers, methodology, release notes
 
 ---
 
-## Environment setup notes
+## Where to start
 
-### Python
+If you want the clearest current examples, start here:
 
-Main dependencies are listed in:
+### Flagship project
 
-* `requirements.txt` (core/full setup)
-* `requirements-dq.txt` (DQ-focused subset)
-* `requirements-forecasting.txt` (forecasting-focused subset)
+* [`01_ops_command_center/docs/`](01_ops_command_center/docs/)
 
-### Power BI
+### Strongest process-control project
 
-Power BI Desktop is Windows-only. On Mac, this repo is still useful for:
+* [`02_quarterly_dc_qaqc_system/README.md`](02_quarterly_dc_qaqc_system/README.md)
+* [`02_quarterly_dc_qaqc_system/docs/quarterly_data_collection_playbook.md`](02_quarterly_dc_qaqc_system/docs/quarterly_data_collection_playbook.md)
+* [`02_quarterly_dc_qaqc_system/docs/dq_rules_catalog.md`](02_quarterly_dc_qaqc_system/docs/dq_rules_catalog.md)
+* [`02_quarterly_dc_qaqc_system/docs/reconciliation_guide.md`](02_quarterly_dc_qaqc_system/docs/reconciliation_guide.md)
 
-* SQL/data modeling
-* docs and semantic model planning
-* data prep and exports
-* publishing/opening reports via Power BI Service (if applicable)
+### Cross-project docs
+
+* [`docs/`](docs/)
 
 ---
 
-## Architecture and documentation
+## Power BI note
 
-This repo is designed to be read by both technical reviewers and hiring managers.
+Power BI Desktop is Windows-only. On Mac, this repo still demonstrates:
 
-Key docs to review:
-
-* `docs/01_architecture_overview.md`
-* `docs/02_metric_dictionary.md`
-* `docs/03_data_dictionary.md`
-* `docs/04_assumptions_limits.md`
-* `01_ops_command_center/docs/source_register.md`
-* `01_ops_command_center/docs/reconciliation_log.md`
+* SQL modeling
+* QA/QC and reconciliation logic
+* semantic-model planning
+* documentation and output walkthroughs
+* reporting-layer design without requiring Desktop itself
 
 ---
 
@@ -300,9 +312,9 @@ Key docs to review:
 
 This repository uses **simulated and synthetic data** for portfolio purposes.
 
-* No proprietary internal company data is included
-* No confidential business records are used
-* Company-like naming is for educational simulation and workflow realism only
+* no proprietary internal company data is included
+* no confidential business records are used
+* company-like naming is used only for educational simulation and workflow realism
 
 The focus is on demonstrating **analytics process quality**, not representing any real company’s internal reporting systems.
 
@@ -311,13 +323,12 @@ The focus is on demonstrating **analytics process quality**, not representing an
 ## Roadmap
 
 Near-term improvements:
-* Move large local databases/assets to **GitHub Releases**
-* Finalize repo download/setup links in project docs
-* Add screenshot-based report previews
-* Add minimal vs full environment setup options
-* Build out Project 3 (Forecasting + Variance Story)
 
-See `TODO.md` for the active backlog.
+* finalize Project 2 sample outputs and walkthrough assets
+* add screenshot-based report previews
+* continue Project 3 forecasting build
+* continue Project 4 sustainability reporting build
+* keep shared templates and standards aligned across projects
 
 ---
 
@@ -325,6 +336,7 @@ See `TODO.md` for the active backlog.
 
 **Brandon Hardison**
 GitHub: [cat-cols](https://github.com/cat-cols)
+LinkedIn: [brandon-hardison](https://www.linkedin.com/in/brandon-hardison-14003293/)
 
 ---
 
