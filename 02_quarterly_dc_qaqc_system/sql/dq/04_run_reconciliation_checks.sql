@@ -6,6 +6,7 @@
 -- 2. calculate sales vs finance values and variance
 -- 3. insert one row into `dq.recon_results`
 
+
 with latest_run as (
     select run_id, quarter_id
     from dq.dq_run_log
@@ -44,6 +45,25 @@ finance_sales as (
     where reporting_category = 'net_revenue'
     group by quarter_id
 )
+
+delete from dq.recon_results
+where run_id = (select run_id from latest_run)
+  and recon_name = 'Sales vs Finance reconciliation within tolerance'
+  and metric_name = 'net_sales_vs_finance_net_revenue';
+
+-- TODO: re-enable this when we have a better way to handle the conflict
+-- insert into dq.recon_results ()
+-- select
+-- on conflict (run_id, recon_name, metric_name)
+-- do update set
+--     left_value = excluded.left_value,
+--     right_value = excluded.right_value,
+--     variance_value = excluded.variance_value,
+--     variance_pct = excluded.variance_pct,
+--     tolerance_pct = excluded.tolerance_pct,
+--     status = excluded.status,
+--     created_at = now();
+
 insert into dq.recon_results (
     run_id,
     quarter_id,
