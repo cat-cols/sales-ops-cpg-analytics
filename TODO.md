@@ -6,11 +6,12 @@
 
 - [ ] Add semantic model test queries to validation folder
 - [ ] refactor customers as entity types: wholesale, retail/direct?
+- 
 
 ---
 
 ## MEDIUM PRIORITY
-- [ ]
+- [ ] After projects are built, modify simulated data to be as real as possible
 
 ---
 
