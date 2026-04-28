@@ -1,0 +1,21 @@
+store_code,state,region,store_multiplier
+OR001,OR,Pacific Northwest,1.1
+OR002,OR,Pacific Northwest,1.08
+OR003,OR,Pacific Northwest,1.05
+OR004,OR,Pacific Northwest,1.03
+OR005,OR,Pacific Northwest,1.0
+WA001,WA,Pacific Northwest,1.07
+WA002,WA,Pacific Northwest,1.05
+WA003,WA,Pacific Northwest,1.03
+WA004,WA,Pacific Northwest,1.01
+WA005,WA,Pacific Northwest,0.98
+CA001,CA,West,1.22
+CA002,CA,West,1.18
+CA003,CA,West,1.14
+CA004,CA,West,1.1
+CA005,CA,West,1.06
+CO001,CO,Mountain,0.98
+CO002,CO,Mountain,0.96
+CO003,CO,Mountain,0.94
+CO004,CO,Mountain,0.92
+CO005,CO,Mountain,0.9

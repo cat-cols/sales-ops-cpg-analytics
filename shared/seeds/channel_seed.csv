@@ -1,0 +1,4 @@
+channel,channel_unit_multiplier,channel_price_multiplier,actual_bias_multiplier
+retail,1.0,1.0,1.0
+wholesale,0.75,0.88,0.95
+distributor,0.6,0.82,1.08
