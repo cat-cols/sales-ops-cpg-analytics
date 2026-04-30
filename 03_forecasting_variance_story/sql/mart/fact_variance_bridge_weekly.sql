@@ -22,3 +22,5 @@ group by
     channel,
     plan_version;
 
+select count(*)
+from mart.fact_variance_bridge_weekly;
