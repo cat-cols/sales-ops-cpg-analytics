@@ -1,4 +1,5 @@
-create or replace view mart.controls_missing_dim_joins as
+drop view if exists mart.controls_missing_dim_joins cascade;
+create view mart.controls_missing_dim_joins as
 select
     source_system,
     scope,
@@ -18,4 +19,3 @@ order by
     source_system,
     facility_id,
     product_line_id;
-```

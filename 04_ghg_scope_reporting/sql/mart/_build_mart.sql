@@ -5,3 +5,4 @@
 \ir controls_missing_factor_joins.sql
 \ir controls_negative_activity.sql
 \ir controls_missing_dim_joins.sql
+\ir controls_unknown_activity_type.sql
