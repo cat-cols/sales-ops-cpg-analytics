@@ -3,8 +3,7 @@
 
 \echo ''
 \echo '============================================================'
-\echo 'PROJECT 5 PIPELINE START'
-\echo 'Decision Engine'
+\echo 'DECISION ENGINE: PIPELINE START'
 \echo '============================================================'
 
 \echo ''
@@ -12,6 +11,10 @@
 \ir mart/_build_decision_mart.sql
 
 \echo ''
+\echo 'Step 2: run QA checks'
+\ir _qa/_run_qa.sql
+
+\echo ''
 \echo '============================================================'
-\echo 'DECISION ENGINE PIPELINE COMPLETE'
+\echo 'DECISION ENGINE: PIPELINE COMPLETE'
 \echo '============================================================'
