@@ -12,6 +12,7 @@
 \echo '============================================================'
 
 \ir qa_decision_kpi_driver_tree.sql
+\ir qa_revenue_variance_root_cause.sql
 
 \echo ''
 \echo '============================================================'
