@@ -1,5 +1,5 @@
 
-architecture:
+# architecture:
 - source extracts (sales/ops/people/esg)
 - staging
 - marts
