@@ -49,9 +49,7 @@ Use project-specific dictionaries for row-grain and business logic specifics.
 - `02_quarterly_dc_qaqc_system/docs/metrics_dictionary.md`
 - `03_forecasting_variance_story/docs/metrics_dictionary.md`
 - `04_ghg_scope_reporting/docs/metrics_dictionary.md`
-
-
-- `05_/docs/metrics_dictionary.md`
+- `05_decision_engine/docs/metrics_dictionary.md`
 - `06_fpna_planning/docs/metrics_dictionary.md`
 - `07_supply_chain_optimization/docs/metrics_dictionary.md`
 
