@@ -1,0 +1,15 @@
+reason_code,reason_category,description,owning_team,typical_resolution,blocks_fulfillment,blocks_invoicing
+MISSING_CUSTOMER_ID,Account Data,Order is missing a valid ERP customer ID,Sales Operations,Match order to valid ERP customer record,true,true
+CRM_ERP_MISMATCH,Account Data,CRM account does not match ERP customer record,Sales Operations,Update crosswalk or correct account/customer record,true,true
+CREDIT_HOLD,Accounting,Customer is on credit hold,Accounting,Resolve payment or approve exception,true,true
+INACTIVE_ACCOUNT,Account Data,Customer/account is inactive,Sales Operations,Confirm account status or cancel order,true,true
+MISSING_LICENSE,Compliance,Customer is missing required license or permit,Compliance,Update license record or reject order,true,true
+SKU_NOT_AVAILABLE_IN_STATE,Compliance/Product,SKU is not available for sale in the destination state,Sales Operations,Substitute SKU or reject line,true,true
+INSUFFICIENT_INVENTORY,Inventory,Available inventory is below ordered quantity,Inventory,Backorder, split shipment, or substitute product,true,false
+SHORT_SHIPMENT,Distribution,Shipped quantity is less than ordered quantity,Distribution,Create credit memo or partial fulfillment,false,true
+CUSTOMER_REFUSAL,Distribution,Customer refused delivery,Distribution,Return product and issue credit memo if required,false,true
+RETURN_DAMAGED,Distribution,Product returned due to damage,Distribution,Inspect return and issue credit memo if approved,false,true
+PRICING_ERROR,Accounting,Invoice or order price does not match expected price,Accounting,Correct invoice or issue credit memo,false,true
+DUPLICATE_ORDER,Order Entry,Potential duplicate order was entered,Sales Operations,Cancel duplicate or confirm intent,true,true
+MISSING_INVOICE,Accounting,Fulfilled order does not have an invoice,Accounting,Create invoice,false,true
+INVOICE_AMOUNT_MISMATCH,Accounting,Invoice amount does not match fulfilled order value,Accounting,Review pricing, shipment, and credit memo records,false,true
