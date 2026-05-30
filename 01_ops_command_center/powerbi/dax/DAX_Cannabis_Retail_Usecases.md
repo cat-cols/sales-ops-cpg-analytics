@@ -1,5 +1,5 @@
 # Cannabis Retail Analytics - DAX Use Cases
-**Business Analyst Interview Prep | Wyld-Specific Scenarios**
+**Business Analyst Interview Prep | Althea Cannabis-Specific Scenarios**
 
 ---
 
@@ -76,7 +76,7 @@ Discount Rate % = DIVIDE([Discount $], [Gross Sales])
 
 ---
 
-## 📊 WYLD-SPECIFIC DAX MEASURES
+## 📊 ALTHEA's DAX MEASURES
 
 ### Revenue & Sales Metrics
 
@@ -234,7 +234,7 @@ Is Top 10 = IF([Product Rank] <= 10, 1, 0)
 SKU Revenue =
     CALCULATE(
         [Total Revenue],
-        Products[SKU] = "WYLD-RASP-10"
+        Products[SKU] = "ALTHEA-RASP-10"
     )
 
 // New Product Performance (launched in last 12 months)
@@ -448,7 +448,7 @@ Avg Orders per Customer =
 
 ---
 
-### Compliance & Regulatory
+### OLCC Compliance & Regulatory
 
 ```dax
 // Cannabis-specific compliance metrics
@@ -524,7 +524,7 @@ Gummies Revenue Loss =
         )
 
 // Market Share by State (if competitor data available)
-Wyld Market Share =
+Althea Market Share =
     DIVIDE(
         [Total Revenue],
         [Total Revenue] + [Competitor Revenue]
@@ -589,7 +589,7 @@ Promo Lift =
 
 ---
 
-## 🎯 WYLD INTERVIEW SCENARIOS
+## 🎯 ALTHEA INTERVIEW SCENARIOS
 
 ### Scenario 1: State Performance Comparison
 
@@ -738,7 +738,7 @@ Rate of Sale (ROS) = [Total Units] / [Total Transactions]
 ---
 
 **Created by:** Brandon Hardison
-**Purpose:** Wyld Business Analyst interview preparation
+**Purpose:** Althea Business Analyst interview preparation
 **Focus:** Cannabis retail analytics with DAX
 **Last Updated:** February 2026
 

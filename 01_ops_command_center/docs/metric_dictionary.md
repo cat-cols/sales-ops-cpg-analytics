@@ -8,7 +8,7 @@
 
 ## Purpose
 
-This document defines the official business meaning and formulas for key metrics used in the Wyld Business Analyst project.
+This document defines the official business meaning and formulas for key metrics used in the Althea Business Analyst project.
 
 It is the **source of truth** for:
 - SQL transformations

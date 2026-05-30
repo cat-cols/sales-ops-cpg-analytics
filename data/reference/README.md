@@ -9,7 +9,7 @@ It contains:
 
 ## Why this exists
 
-Wyld (and basically any consumer-products company) ends up needing a **stable “location / account master”** to join facts to:
+Althea (and basically any consumer-products company) ends up needing a **stable “location / account master”** to join facts to:
 sales, inventory, shipments, labor, finance, etc.
 
 This dataset is used as a realistic seed for a *dispensary master* / *account master* dimension and for QA sanity checks.

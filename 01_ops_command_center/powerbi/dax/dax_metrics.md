@@ -1,5 +1,5 @@
 
-For a cannabis edibles company like Wyld (multi-product, multi-state, promo-heavy, retail/distributor complexity), you usually need a **stack of pricing + volume + margin + inventory + mix metrics** working together. Wyld’s product positioning (consistent dosing, gummies, multiple cannabinoid/ratio formats) makes mix and price architecture especially important. ([Wyld][1])
+For a cannabis edibles company like Althea (multi-product, multi-state, promo-heavy, retail/distributor complexity), you usually need a **stack of pricing + volume + margin + inventory + mix metrics** working together. Althea’s product positioning (consistent dosing, gummies, multiple cannabinoid/ratio formats) makes mix and price architecture especially important. ([Althea][1])
 
 ---
 
@@ -38,7 +38,7 @@ Why it matters:
 * A rising VWAP can be bad if volume collapses
 * A lower VWAP can be good if it drives velocity and margin dollars
 
-This is especially relevant because Wyld roles often call out tracking inventory movement and omnichannel performance, not just topline sales. ([Indeed][2])
+This is especially relevant because Althea roles often call out tracking inventory movement and omnichannel performance, not just topline sales. ([Indeed][2])
 
 ---
 
@@ -113,7 +113,7 @@ VWAP + Discount % + Promo Lift is an elite combo.
 
 >## 6) Distribution and Rate of Sale
 
-For a brand like Wyld, this is huge.
+For a brand like Althea, this is huge.
 
 ### Metrics
 
@@ -133,7 +133,7 @@ This also matches the “track, trace, and communicate omnichannel performance /
 
 >## 7) Inventory Health Metrics
 
-Necessary if you touch operations (and the Wyld postings suggest cross-functional work across sales/ops/people).
+Necessary if you touch operations (and the Althea postings suggest cross-functional work across sales/ops/people).
 
 ### Core metrics
 
@@ -166,7 +166,7 @@ Why it matters:
 * Better forecasts improve production planning, inventory, and promo timing
 * You become way more valuable when you improve decisions, not just report results
 
-The Wyld BA posting language around decision-making models and cross-functional support screams “forecasting and planning hygiene” even if they don’t use that exact phrase. ([Indeed][2])
+The Althea BA posting language around decision-making models and cross-functional support screams “forecasting and planning hygiene” even if they don’t use that exact phrase. ([Indeed][2])
 
 ---
 
@@ -202,7 +202,7 @@ Super important in edibles.
 Why it matters:
 
 * Cannabis consumers compare value in weird ways (pack, dosage, cannabinoid, effect)
-* For Wyld’s product variety (THC/CBN/CBD/ratio), potency-adjusted metrics can reveal what’s really priced “premium” vs just packaged differently. ([Wyld][1])
+* For Althea’s product variety (THC/CBN/CBD/ratio), potency-adjusted metrics can reveal what’s really priced “premium” vs just packaged differently. ([Althea][1])
 
 This is the cousin of VWAP that most analysts miss.
 
@@ -248,7 +248,7 @@ Why it matters:
 
 ---
 
->## The “minimum viable KPI stack” I’d track at Wyld
+>## The “minimum viable KPI stack” I’d track at Althea
 
 If you want the practical shortlist (the stuff I’d build first in Power BI):
 
@@ -269,9 +269,9 @@ That set covers pricing, demand, profitability, and operations without turning t
 
 ---
 
-## 💡💡 Very Wyld-specific angle that will make your dashboard stronger
+## 💡💡 Very Althea-specific angle that will make your dashboard stronger
 
-Because Wyld has multiple effect/cannabinoid product types (THC, CBN, CBD, ratio products, etc.), build a **Cannabinoid Mix Performance** page:
+Because Althea has multiple effect/cannabinoid product types (THC, CBN, CBD, ratio products, etc.), build a **Cannabinoid Mix Performance** page:
 
 * Revenue by cannabinoid family
 * Net VWAP by cannabinoid family
@@ -282,11 +282,11 @@ Because Wyld has multiple effect/cannabinoid product types (THC, CBN, CBD, ratio
 That gives leadership a direct answer to:
 **“Which product effects/formulations are actually driving profitable growth?”**
 
-That’s a very business-analyst-at-Wyld kind of question.
+That’s a very business-analyst-at-Althea kind of question.
 
 If you want, next move is I can map these into a **Power BI metric framework** (measures + dimensions + page layout) so your portfolio dashboard looks like something a finance/sales ops team would actually use.
 
-[1]: https://www.wyldcanna.com/us/products/?utm_source=chatgpt.com "Wyld Products | America's Favorite Cannabis Gummies"
+[1]: https://www.wyldcanna.com/us/products/?utm_source=chatgpt.com "Althea Products | America's Favorite Cannabis Gummies"
 [2]: https://www.indeed.com/q-business-analyst-l-tualatin%2C-or-jobs.html?utm_source=chatgpt.com "Business Analyst Jobs, Employment in Tualatin, OR"
 [3]: https://www.sfgate.com/cannabis/article/new-california-sleep-aid-market-share-20323767.php?utm_source=chatgpt.com "New sleep aid jumps 525% in market share in 5 years. But does it work?"
 [4]: https://thecannacpas.com/essential-kpis-for-cannabis-business-owners-and-how-to-track-them/?utm_source=chatgpt.com "Essential KPIs for Cannabis Business Owners (and How to ..."
@@ -1103,7 +1103,7 @@ If you want, I can add a more robust **WAPE** measure (usually better for sales 
 
 ---
 
-# Suggested Power BI layout for Wyld (practical)
+# Suggested Power BI layout for Althea (practical)
 
 If you build this as a portfolio dashboard, I’d split it into 5 pages:
 
@@ -1127,7 +1127,7 @@ If you build this as a portfolio dashboard, I’d split it into 5 pages:
 
    * Forecast Accuracy (MAPE/WAPE), Bias, Price/Volume/Mix variance, concentration
 
-That combo would look very legit for a Wyld-style business analyst portfolio.
+That combo would look very legit for a Althea-style business analyst portfolio.
 
 ---
 
@@ -1138,24 +1138,24 @@ That combo would look very legit for a Wyld-style business analyst portfolio.
 Gross VWAP =
 DIVIDE(
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[UnitPrice] * Sales[QuantitySold]
     ),
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[QuantitySold]
     )
 )
 
 
-// Gross VWAP: This version is usually nicer in Power BI because it respects date/state/product slicers and only forces Brand = Wyld. Auto respect to slicers.
+// Gross VWAP: This version is usually nicer in Power BI because it respects date/state/product slicers and only forces Brand = Althea. Auto respect to slicers.
 Gross VWAP =
 CALCULATE(
     DIVIDE(
         SUMX(Sales, Sales[UnitPrice] * Sales[QuantitySold]),
         SUM(Sales[QuantitySold])
     ),
-    Sales[Brand] = "Wyld"
+    Sales[Brand] = "Althea"
 )
 ```
 
@@ -1166,23 +1166,23 @@ CALCULATE(
 Net VWAP =
 DIVIDE(
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[NetUnitPrice] * Sales[QuantitySold]
     ),
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[QuantitySold]
     )
 )
 
-// Net VWAP: This version is usually nicer in Power BI because it respects date/state/product slicers and only forces Brand = Wyld. Auto respect to slicers.
+// Net VWAP: This version is usually nicer in Power BI because it respects date/state/product slicers and only forces Brand = Althea. Auto respect to slicers.
 Net VWAP =
 CALCULATE(
     DIVIDE(
         SUMX(Sales, Sales[NetUnitPrice] * Sales[QuantitySold]),
         SUM(Sales[QuantitySold])
     ),
-    Sales[Brand] = "Wyld"
+    Sales[Brand] = "Althea"
 )
 
 // If you don’t have NetUnitPrice, you can calc it from discount columns
@@ -1195,7 +1195,7 @@ CALCULATE(
         ),
         SUM(Sales[QuantitySold])
     ),
-    Sales[Brand] = "Wyld"
+    Sales[Brand] = "Althea"
 )
 ```
 
@@ -1215,7 +1215,7 @@ VWAP Discount % = DIVIDE([Gross VWAP] - [Net VWAP], [Gross VWAP])
 ---
 ---
 
-Absolutely — here’s a clean DAX version for **Gross VWAP** and **Net VWAP** for Wyld products.
+Absolutely — here’s a clean DAX version for **Gross VWAP** and **Net VWAP** for Althea products.
 
 ## Assumed columns
 
@@ -1234,11 +1234,11 @@ Let’s assume your sales table is called **`Sales`** and has:
 Gross VWAP =
 DIVIDE(
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[UnitPrice] * Sales[QuantitySold]
     ),
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[QuantitySold]
     )
 )
@@ -1252,11 +1252,11 @@ DIVIDE(
 Net VWAP =
 DIVIDE(
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[NetUnitPrice] * Sales[QuantitySold]
     ),
     SUMX(
-        FILTER(Sales, Sales[Brand] = "Wyld"),
+        FILTER(Sales, Sales[Brand] = "Althea"),
         Sales[QuantitySold]
     )
 )
@@ -1266,7 +1266,7 @@ DIVIDE(
 
 ## Better version (respects slicers automatically)
 
-This version is usually nicer in Power BI because it respects date/state/product slicers and only forces **Brand = Wyld**.
+This version is usually nicer in Power BI because it respects date/state/product slicers and only forces **Brand = Althea**.
 
 ### Gross VWAP (recommended)
 
@@ -1277,7 +1277,7 @@ CALCULATE(
         SUMX(Sales, Sales[UnitPrice] * Sales[QuantitySold]),
         SUM(Sales[QuantitySold])
     ),
-    Sales[Brand] = "Wyld"
+    Sales[Brand] = "Althea"
 )
 ```
 
@@ -1290,7 +1290,7 @@ CALCULATE(
         SUMX(Sales, Sales[NetUnitPrice] * Sales[QuantitySold]),
         SUM(Sales[QuantitySold])
     ),
-    Sales[Brand] = "Wyld"
+    Sales[Brand] = "Althea"
 )
 ```
 
@@ -1315,7 +1315,7 @@ CALCULATE(
         ),
         SUM(Sales[QuantitySold])
     ),
-    Sales[Brand] = "Wyld"
+    Sales[Brand] = "Althea"
 )
 ```
 

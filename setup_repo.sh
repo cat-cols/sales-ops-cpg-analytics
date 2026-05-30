@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Wyld Bootstrap: Business Analyst Repo
+# Myld Bootstrap: Business Analyst Repo
 # Usage:
 #   bash setup_repo.sh
 #   bash setup_repo.sh --skip-venv
@@ -99,7 +99,7 @@ PYTHONUNBUFFERED=1
 # DBT_PROFILES_DIR=./.dbt
 # POSTGRES_HOST=localhost
 # POSTGRES_PORT=5432
-# POSTGRES_DB=wyld_sim
+# POSTGRES_DB=myld
 # POSTGRES_USER=postgres
 # POSTGRES_PASSWORD=postgres
 EOF

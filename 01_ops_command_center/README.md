@@ -1,4 +1,4 @@
-# Project 1 — Wyld Ops Command Center
+# Project 1 — Althea Ops Command Center
 
 An end-to-end analytics engineering case study that simulates messy cross-functional source extracts, standardizes them in PostgreSQL, reconciles them to finance, and prepares a reporting-ready mart layer for Power BI.
 

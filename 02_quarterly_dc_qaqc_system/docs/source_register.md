@@ -5,7 +5,7 @@ This register documents the primary quarterly source submissions used in the Pro
 
 ## Scope and assumptions
 - These sources represent quarterly departmental submissions used for certified business reporting.
-- The project is modeled around a Wyld-like B2B operating context, including dispensary account sales, wholesale sales, finance actuals, inventory, and trade adjustments.
+- The project is modeled around a Althea-like B2B operating context, including dispensary account sales, wholesale sales, finance actuals, inventory, and trade adjustments.
 - This register is used to define source expectations before staging, validation, reconciliation, and reporting certification.
 
 ## Source register

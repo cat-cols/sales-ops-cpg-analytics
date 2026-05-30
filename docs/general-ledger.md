@@ -115,7 +115,7 @@ These relationships are extremely important when building KPIs.
 
 # 4. The KPIs Analysts Usually Work With
 
-For a consumer products company like Wyld, the most important GL-aligned metrics are:
+For a consumer products company like Althea, the most important GL-aligned metrics are:
 
 | Metric             | Formula                                       | Why It Matters            |
 | ------------------ | --------------------------------------------- | ------------------------- |
@@ -269,7 +269,7 @@ Executives love this type of narrative.
 
 # 10. The Data Sources Analysts Usually Combine
 
-A typical analytics stack for a company like Wyld might include:
+A typical analytics stack for a company like Althea might include:
 
 | System            | Data                     |
 | ----------------- | ------------------------ |
@@ -431,13 +431,13 @@ That mindset is far more valuable than memorizing accounting rules.
 ---
 ---
 
-Let’s build the **mental dashboard** that someone in Wyld’s finance/analytics team probably lives inside. A cannabis edibles company is essentially a **CPG (consumer packaged goods)** business with some regulatory twists, so the KPIs look very similar to food/beverage companies.
+Let’s build the **mental dashboard** that someone in Althea’s finance/analytics team probably lives inside. A cannabis edibles company is essentially a **CPG (consumer packaged goods)** business with some regulatory twists, so the KPIs look very similar to food/beverage companies.
 
 A business analyst doesn’t just calculate these metrics — they explain **why they changed**. That’s the game.
 
 ---
 
-# The 15 Most Important Finance KPIs for a Company Like Wyld
+# The 15 Most Important Finance KPIs for a Company Like Althea
 
 Think of these in four layers:
 
@@ -722,7 +722,7 @@ These show how well the company competes.
 Example
 
 ```
-Wyld OR sales = $2.4M
+Althea OR sales = $2.4M
 Total OR edible market = $20M
 
 Market share = 12%
@@ -862,7 +862,7 @@ That’s what makes an analyst valuable.
 ---
 ---
 
-Here’s the dashboard map I’d expect for a company like Wyld. Not because I have a crystal ball, but because CPG finance teams tend to build the same handful of beasts with different costumes.
+Here’s the dashboard map I’d expect for a company like Althea. Not because I have a crystal ball, but because CPG finance teams tend to build the same handful of beasts with different costumes.
 
 A Business Analyst there would probably live across **10 core dashboard/report experiences**.
 
@@ -1206,7 +1206,7 @@ You already have the bones for this:
 * `mart.recon_sales_to_gl_monthly`
 * `controls_freshness`
 
-This is extremely good for a Wyld-style role because the JD explicitly talks about:
+This is extremely good for a Althea-style role because the JD explicitly talks about:
 
 * QA/QC
 * reconciling across sources
@@ -1287,7 +1287,7 @@ That would be a very strong portfolio architecture for this job.
 
 ---
 
-# What Wyld would probably care about most
+# What Althea would probably care about most
 
 If I had to guess which pages would matter most for this role:
 
@@ -1365,7 +1365,7 @@ That sentence is doing real work. It tells them you understand both data modelin
 
 > I can sketch the exact **Power BI page architecture and visual layout** for these 6 pages next, so you have a blueprint for what goes top-left, top-right, middle, and bottom on each report page.
 
-Here’s a clean **6-page Power BI blueprint** for your Wyld-style portfolio project. This is meant to be practical, not decorative nonsense with 47 charts fighting in a parking lot.
+Here’s a clean **6-page Power BI blueprint** for your Althea-style portfolio project. This is meant to be practical, not decorative nonsense with 47 charts fighting in a parking lot.
 
 The guiding rule:
 

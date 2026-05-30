@@ -1,6 +1,6 @@
 ## In-scope sources
 
-Simulate five B2B-style quarterly submissions that better match a Wyld-like operating model:
+Simulate five B2B-style quarterly submissions that better match a Althea-like operating model:
 
 - `retail_account_sales_quarterly_extract.csv`
 - `wholesale_account_sales_quarterly_extract.csv`

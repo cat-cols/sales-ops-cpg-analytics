@@ -65,7 +65,7 @@ Highest Sale = MAX(Sales[Amount])
 Lowest Sale = MIN(Sales[Amount])
 ```
 
-**Wyld Use Case:**
+**Althea Use Case:**
 ```dax
 // Total cannabis sales
 Total Sales = SUM(Sales[Revenue])
@@ -185,7 +185,7 @@ Q4 High Value Sales =
     )
 ```
 
-**Wyld Use Cases:**
+**Althea Use Cases:**
 ```dax
 // Gummies revenue only
 Gummies Revenue = 
@@ -261,7 +261,7 @@ Rolling 12M Sales =
     )
 ```
 
-**Wyld Use Case:**
+**Althea Use Case:**
 ```dax
 // Compare this month vs. last month
 Sales vs Prior Month = 
@@ -387,7 +387,7 @@ Bonus Multiplier =
     )
 ```
 
-**Wyld Use Case:**
+**Althea Use Case:**
 ```dax
 // Product classification
 Product Type = 
@@ -495,7 +495,7 @@ Weighted Avg Price =
     )
 ```
 
-**Wyld Use Case:**
+**Althea Use Case:**
 ```dax
 // Net revenue (after discounts)
 Net Revenue = 
@@ -568,7 +568,7 @@ Total = CALCULATE(SUM(Sales[Amount]), ALL(Sales))
 
 ---
 
-## 🎯 WYLD INTERVIEW SCENARIOS
+## 🎯 INTERVIEW SCENARIOS
 
 ### Q: "Calculate gross margin by product category"
 
@@ -678,7 +678,7 @@ When asked about Power BI/DAX:
 ---
 
 **Created by:** Brandon Hardison  
-**Purpose:** Interview preparation for Wyld Business Analyst role  
+**Purpose:** Interview preparation for Althea Business Analyst role  
 **Last Updated:** February 2026
 
 ---

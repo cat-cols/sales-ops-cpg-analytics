@@ -1,4 +1,4 @@
-# Wyld Business Analyst Project TODO
+# Althea Business Analyst Project TODO
 
 - keeps the “audit” items as real checklists
 - put the **execution-critical stuff** (build + QA + runners) in the right places

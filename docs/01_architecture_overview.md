@@ -327,7 +327,7 @@ Not giant data files. Keep it lightweight.
 
 ### 3) Put “real-ish seeds” where they belong
 
-For your Wyld simulation:
+For your Althea simulation:
 
 * product/dispensary seeds can live in `project_01/.../data/seeds/`
 * if reused across projects, also store a canonical copy in top-level `data/reference/`

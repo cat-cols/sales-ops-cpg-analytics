@@ -1,4 +1,4 @@
-# Wyld-Style Business Analyst Portfolio
+# Althea-Style Business Analyst Portfolio
 
 ![Project](https://img.shields.io/badge/flagship-Ops%20Command%20Center-4f46e5)
 ![Status](https://img.shields.io/badge/status-active%20multi--project%20portfolio-brightgreen)
@@ -84,8 +84,8 @@ This repository is built to show more than dashboarding. It is meant to demonstr
 ### 1) Clone the repo
 
 ```bash
-git clone git@github.com:cat-cols/wyld-business-analyst.git
-cd wyld-business-analyst
+git clone git@github.com:cat-cols/sales-ops-cpg-analytics.git
+cd sales-ops-cpg-analytics
 ```
 
 ### 2) Bootstrap the project
@@ -107,10 +107,28 @@ bash setup_repo.sh --venv-name .venv
 source .venv/bin/activate
 ```
 
-### 4) Generate sample data for Project 1
+### 4) Generate sample data
+
+Generate data for a single project:
 
 ```bash
-python scripts/generate_project1_data.py
+# Project 1
+python 01_ops_command_center/scripts/generate_project1_data.py
+
+# Project 2
+python 02_quarterly_dc_qaqc_system/scripts/generate_project2_dq_inputs.py
+
+# Project 3
+python 03_forecasting_variance_story/scripts/generate_project3_forecast_inputs.py
+
+# Project 4
+python 04_ghg_scope_reporting/scripts/generate_project4_ghg_inputs.py
+```
+
+Or regenerate data for all projects at once:
+
+```bash
+python scripts/regenerate_all_data.py
 ```
 
 > **Note:** Project 1 currently has the most complete end-to-end sample generation workflow. Other projects use a mix of implemented assets and scaffolding as the portfolio is finalized.
@@ -144,7 +162,7 @@ Large synthetic datasets and local database artifacts are intended to be generat
 
 ## Synthetic enterprise analytics sandbox
 
-This portfolio uses a synthetic “Wyld-like” analytics environment designed to simulate realistic business analyst workflows across multiple domains.
+This portfolio uses a synthetic “Althea-like” analytics environment designed to simulate realistic business analyst workflows across multiple domains.
 
 ### Synthetic environment highlights
 * **Date range:** 2022-01-01 to 2026-02-23

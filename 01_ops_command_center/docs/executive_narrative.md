@@ -1,7 +1,7 @@
-# Executive Walkthrough — Wyld Ops Command Center (Project 1)
+# Executive Walkthrough — Althea Ops Command Center (Project 1)
 
 ## Table of Contents
-- [Executive Walkthrough — Wyld Ops Command Center (Project 1)](#executive-walkthrough--wyld-ops-command-center-project-1)
+- [Executive Walkthrough — Althea Ops Command Center (Project 1)](#executive-walkthrough--althea-ops-command-center-project-1)
   - [Table of Contents](#table-of-contents)
   - [1. Business Problem](#1-business-problem)
   - [2. Objective](#2-objective)

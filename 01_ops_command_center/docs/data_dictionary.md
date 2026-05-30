@@ -98,8 +98,8 @@ One row per:
 |---|---|---|---|---|
 | product_key | INTEGER | Surrogate product key | Primary key | 7 |
 | source_product_code | STRING | Source SKU code | Unique within dim | SKU0007 |
-| product_name | STRING | Product full name | Trimmed, canonical | Wyld Marionberry THC Gummies |
-| brand_name | STRING | Brand | Fixed: Wyld | Wyld |
+| product_name | STRING | Product full name | Trimmed, canonical | Althea Marionberry THC Gummies |
+| brand_name | STRING | Brand | Fixed: Althea | Althea |
 | category_name | STRING | Category | e.g., Gummies | Gummies |
 | flavor_name | STRING | Flavor | e.g., Marionberry | Marionberry |
 | product_line | STRING | Line name | e.g., Mellow | Mellow |
@@ -236,7 +236,7 @@ Expected fields (headers may vary):
 |---|---|---|---|---|
 | Sale Date | STRING | Sale date | Mixed formats possible | 01/15/2025 |
 | sku | STRING | SKU code | Joins to dim_product.source_product_code | SKU0007 |
-| product_name | STRING | Product name | May include trailing spaces | Wyld Marionberry THC Gummies␠␠ |
+| product_name | STRING | Product name | May include trailing spaces | Althea Marionberry THC Gummies␠␠ |
 | Store ID | STRING | Store/site code | May be missing | OR12 |
 | channel | STRING | Channel name | Case/whitespace drift | " retail " |
 | qty | INTEGER | Units sold | May be aggregated per grain | 8 |

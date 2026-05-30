@@ -1,4 +1,4 @@
-# Executive Walkthrough — Wyld Ops Command Center
+# Executive Walkthrough — Althea Ops Command Center
 
 ## 1. Business Problem
 
