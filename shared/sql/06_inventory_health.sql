@@ -49,6 +49,6 @@ LEFT JOIN sales
  AND sales.location_key = inv.location_key
 JOIN dim_product p ON inv.product_key = p.product_key
 JOIN dim_location l ON inv.location_key = l.location_key
-WHERE p.brand_name = 'Wyld'
+WHERE p.brand_name = 'Althea'
 GROUP BY inv.month_start_date, l.state, p.product_name
 ORDER BY inv.month_start_date, l.state, p.product_name;

@@ -1,6 +1,6 @@
-# Wyld Business Analyst SQL Pack
+# Althea Business Analyst SQL Pack
 
-Starter SQL query pack tailored for a Wyld-style cannabis business analyst workflow.
+Starter SQL query pack tailored for a Althea-style cannabis business analyst workflow.
 
 ## Files
 - 01_kpi_exec_summary.sql
@@ -19,7 +19,7 @@ Starter SQL query pack tailored for a Wyld-style cannabis business analyst workf
 ## Notes
 - PostgreSQL-style syntax.
 - Rename columns/types as needed for your warehouse.
-- Most queries filter dim_product.brand_name = ''Wyld''.
+- Most queries filter dim_product.brand_name = ''Althea''.
 
 ---
 

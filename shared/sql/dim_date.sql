@@ -1,5 +1,5 @@
 -- dim_date.sql
--- Purpose: Build a reusable calendar/date dimension for Wyld analytics.
+-- Purpose: Build a reusable calendar/date dimension for Althea analytics.
 -- Dialect: PostgreSQL-compatible (works in many warehouses with small tweaks).
 --
 -- Notes:

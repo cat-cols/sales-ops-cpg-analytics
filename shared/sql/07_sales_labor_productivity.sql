@@ -8,7 +8,7 @@ WITH sales_loc_day AS (
     SUM(s.net_sales_amount - s.cogs_amount) AS gross_margin_dollars
   FROM fact_sales s
   JOIN dim_product p ON s.product_key = p.product_key
-  WHERE p.brand_name = 'Wyld'
+  WHERE p.brand_name = 'Althea'
   GROUP BY 1,2
 ),
 labor_loc_day AS (

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file maps the **assumed schema** used in the Wyld SQL pack to your **actual warehouse tables/columns**.
+This file maps the **assumed schema** used in the Althea SQL pack to your **actual warehouse tables/columns**.
 
 Use it before editing the SQL files so you can swap names cleanly and avoid mystery bugs.
 
@@ -144,7 +144,7 @@ Use it before editing the SQL files so you can swap names cleanly and avoid myst
 |---|---|---:|---|---|---|
 | `product_key` |  |  |  |  | PK |
 | `product_name` |  |  |  |  |  |
-| `brand_name` |  |  |  |  | Filter on `Wyld` |
+| `brand_name` |  |  |  |  | Filter on `Althea` |
 | `cannabinoid_family` |  |  |  |  | THC / CBD / CBN / ratio |
 | `flavor` |  |  |  |  |  |
 | `pack_size` |  |  |  |  | Gummies per pack or unit count |

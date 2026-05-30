@@ -6,7 +6,7 @@ WITH monthly_active AS (
   FROM fact_sales s
   JOIN dim_date d    ON s.date_key = d.date_key
   JOIN dim_product p ON s.product_key = p.product_key
-  WHERE p.brand_name = 'Wyld'
+  WHERE p.brand_name = 'Althea'
     AND s.units_sold > 0
 ),
 retention AS (

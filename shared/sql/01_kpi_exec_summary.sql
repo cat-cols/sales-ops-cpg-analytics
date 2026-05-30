@@ -1,4 +1,4 @@
--- Wyld KPI Executive Summary (Monthly / State / Channel)
+-- Althea KPI Executive Summary (Monthly / State / Channel)
 -- Assumes PostgreSQL-compatible SQL. Rename columns as needed.
 
 WITH sales_base AS (
@@ -15,7 +15,7 @@ WITH sales_base AS (
   JOIN dim_location l  ON s.location_key = l.location_key
   JOIN dim_channel c   ON s.channel_key = c.channel_key
   JOIN dim_product p   ON s.product_key = p.product_key
-  WHERE p.brand_name = 'Wyld'
+  WHERE p.brand_name = 'Althea'
   GROUP BY 1,2,3
 )
 SELECT

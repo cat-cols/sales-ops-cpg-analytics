@@ -11,7 +11,7 @@ WITH sku_month AS (
   FROM fact_sales s
   JOIN dim_date d    ON s.date_key = d.date_key
   JOIN dim_product p ON s.product_key = p.product_key
-  WHERE p.brand_name = 'Wyld'
+  WHERE p.brand_name = 'Althea'
   GROUP BY 1,2
 ),
 curr_prev AS (
