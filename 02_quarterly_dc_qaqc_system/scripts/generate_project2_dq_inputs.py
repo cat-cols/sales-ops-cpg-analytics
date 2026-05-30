@@ -9,19 +9,43 @@ def get_project_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def get_repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def get_shared_seed_dir(repo_root: Path) -> Path:
+    return repo_root / "shared" / "seeds"
+
+
 def ensure_output_dir(project_root: Path) -> Path:
     output_dir = project_root / "data" / "source_extracts"
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
 
 
-def generate_retail_account_sales() -> pd.DataFrame:
+def load_products_from_seed(shared_seed_dir: Path) -> pd.DataFrame:
+    """Load products from shared seed file."""
+    product_seed_file = shared_seed_dir / "product_seed.csv"
+
+    if not product_seed_file.exists():
+        raise FileNotFoundError(f"Shared seed file not found: {product_seed_file}")
+
+    return pd.read_csv(product_seed_file)
+
+
+def generate_retail_account_sales(products_df: pd.DataFrame) -> pd.DataFrame:
+    # Get first 2 SKUs from shared seed for demo purposes
+    if len(products_df) < 2:
+        raise ValueError(f"Seed file must have at least 2 products, found {len(products_df)}")
+    sku_list = products_df["sku"].head(2).tolist()
+    sku1, sku2 = sku_list[0], sku_list[1]
+    
     clean_rows = [
         {
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-11",
             "dispensary_account_id": "DSP001",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "units_sold": 40,
             "gross_sales": 480.00,
             "discount_amount": 30.00,
@@ -31,7 +55,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-11",
             "dispensary_account_id": "DSP002",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "units_sold": 32,
             "gross_sales": 384.00,
             "discount_amount": 24.00,
@@ -41,7 +65,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-18",
             "dispensary_account_id": "DSP001",
-            "sku_id": "SKU002",
+            "sku_id": sku2,
             "units_sold": 28,
             "gross_sales": 364.00,
             "discount_amount": 14.00,
@@ -51,7 +75,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-18",
             "dispensary_account_id": "DSP003",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "units_sold": 50,
             "gross_sales": 600.00,
             "discount_amount": 45.00,
@@ -61,7 +85,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-25",
             "dispensary_account_id": "DSP002",
-            "sku_id": "SKU002",
+            "sku_id": sku2,
             "units_sold": 36,
             "gross_sales": 468.00,
             "discount_amount": 18.00,
@@ -71,7 +95,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-25",
             "dispensary_account_id": "DSP003",
-            "sku_id": "SKU002",
+            "sku_id": sku2,
             "units_sold": 44,
             "gross_sales": 572.00,
             "discount_amount": 22.00,
@@ -84,7 +108,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-18",
             "dispensary_account_id": None,
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "units_sold": 30,
             "gross_sales": 390.00,
             "discount_amount": 15.00,
@@ -94,7 +118,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-11",
             "dispensary_account_id": "DSP001",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "units_sold": 40,
             "gross_sales": 480.00,
             "discount_amount": 30.00,
@@ -104,7 +128,7 @@ def generate_retail_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-04-12",
             "dispensary_account_id": "DSP002",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "units_sold": 25,
             "gross_sales": 325.00,
             "discount_amount": 10.00,
@@ -116,13 +140,19 @@ def generate_retail_account_sales() -> pd.DataFrame:
     # Intentionally no rows for expected week 2026-02-01
 
 
-def generate_wholesale_account_sales() -> pd.DataFrame:
+def generate_wholesale_account_sales(products_df: pd.DataFrame) -> pd.DataFrame:
+    # Get first 2 SKUs from shared seed for demo purposes
+    if len(products_df) < 2:
+        raise ValueError(f"Seed file must have at least 2 products, found {len(products_df)}")
+    sku_list = products_df["sku"].head(2).tolist()
+    sku1, sku2 = sku_list[0], sku_list[1]
+    
     clean_rows = [
         {
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-11",
             "wholesale_account_id": "WH001",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "cases_sold": 18,
             "gross_sales": 540.00,
             "net_sales": 500.00,
@@ -131,7 +161,7 @@ def generate_wholesale_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-11",
             "wholesale_account_id": "WH002",
-            "sku_id": "SKU002",
+            "sku_id": sku2,
             "cases_sold": 12,
             "gross_sales": 420.00,
             "net_sales": 390.00,
@@ -140,7 +170,7 @@ def generate_wholesale_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-18",
             "wholesale_account_id": "WH001",
-            "sku_id": "SKU002",
+            "sku_id": sku2,
             "cases_sold": 20,
             "gross_sales": 700.00,
             "net_sales": 650.00,
@@ -149,7 +179,7 @@ def generate_wholesale_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-18",
             "wholesale_account_id": "WH003",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "cases_sold": 16,
             "gross_sales": 560.00,
             "net_sales": 520.00,
@@ -158,7 +188,7 @@ def generate_wholesale_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-25",
             "wholesale_account_id": "WH002",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "cases_sold": 14,
             "gross_sales": 490.00,
             "net_sales": 455.00,
@@ -167,7 +197,7 @@ def generate_wholesale_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-25",
             "wholesale_account_id": "WH003",
-            "sku_id": "SKU002",
+            "sku_id": sku2,
             "cases_sold": 15,
             "gross_sales": 525.00,
             "net_sales": 490.00,
@@ -188,7 +218,7 @@ def generate_wholesale_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-11",
             "wholesale_account_id": "WH001",
-            "sku_id": "SKU001",
+            "sku_id": sku1,
             "cases_sold": 18,
             "gross_sales": 540.00,
             "net_sales": 500.00,
@@ -197,7 +227,7 @@ def generate_wholesale_account_sales() -> pd.DataFrame:
             "quarter_id": "2026Q1",
             "week_end_date": "2026-01-25",
             "wholesale_account_id": "WH005",
-            "sku_id": "SKU003",
+            "sku_id": sku2,
             "cases_sold": 8,
             "gross_sales": 500.00,
             "net_sales": 100.00,
@@ -420,9 +450,14 @@ def generate_trade_adjustments() -> pd.DataFrame:
 def main() -> None:
     project_root = get_project_root()
     output_dir = ensure_output_dir(project_root)
+    
+    # Load products from shared seeds
+    repo_root = get_repo_root()
+    shared_seed_dir = get_shared_seed_dir(repo_root)
+    products_df = load_products_from_seed(shared_seed_dir)
 
-    retail_df = generate_retail_account_sales()
-    wholesale_df = generate_wholesale_account_sales()
+    retail_df = generate_retail_account_sales(products_df)
+    wholesale_df = generate_wholesale_account_sales(products_df)
     finance_df = generate_finance_actuals(retail_df, wholesale_df)
 
     retail_output = output_dir / "retail_account_sales_quarterly_extract.csv"
@@ -432,10 +467,6 @@ def main() -> None:
     retail_df.to_csv(retail_output, index=False)
     wholesale_df.to_csv(wholesale_output, index=False)
     finance_df.to_csv(finance_output, index=False)
-
-    inventory_df = generate_inventory_quarterly()
-    inventory_output = output_dir / "inventory_quarterly_extract.csv"
-    inventory_df.to_csv(inventory_output, index=False)
 
     inventory_df = generate_inventory_quarterly()
     trade_adjustments_df = generate_trade_adjustments()

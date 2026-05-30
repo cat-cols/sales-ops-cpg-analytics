@@ -88,87 +88,99 @@ def get_repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def get_project_root() -> Path:
-    return Path(__file__).resolve().parents[1]
-
-
 def get_shared_source_systems_dir(repo_root: Path) -> Path:
     return repo_root / "shared" / "source_systems"
+
+
+def get_shared_seed_dir(repo_root: Path) -> Path:
+    return repo_root / "shared" / "seeds"
 
 # -----------------------------
 # Reference data
 # -----------------------------
 
-def make_facilities() -> pd.DataFrame:
+def make_facilities(shared_seed_dir: Path) -> pd.DataFrame:
     """Facilities are the shared location dimension for Scope 1/2/3 reporting."""
-    rows = [
-        {
-            "facility_id": "FAC001",
-            "facility_name": "Portland Production Kitchen",
-            "facility_type": "Manufacturing",
-            "city": "Portland",
-            "state_province": "OR",
+    location_seed_file = shared_seed_dir / "location_seed.csv"
+
+    if not location_seed_file.exists():
+        raise FileNotFoundError(f"Shared seed file not found: {location_seed_file}")
+
+    location_df = pd.read_csv(location_seed_file)
+
+    # Dynamic mapping based on actual seed data
+    # Use first 5 locations from seed for demo purposes
+    facility_type_map = {
+        "OR": ["Manufacturing", "Distribution"],
+        "WA": ["Warehouse"],
+        "CA": ["Office"],
+        "CO": ["Manufacturing"],
+    }
+
+    city_map = {
+        "OR": ["Portland", "Clackamas"],
+        "WA": ["Vancouver"],
+        "CA": ["Oakland"],
+        "CO": ["Denver"],
+    }
+
+    rows = []
+    for i, (_, loc_row) in enumerate(location_df.head(5).iterrows(), start=1):
+        store_code = loc_row["store_code"]
+        state = loc_row["state"]
+
+        # Get facility type and city dynamically based on state
+        state_facility_types = facility_type_map.get(state, ["Warehouse"])
+        state_cities = city_map.get(state, ["Unknown"])
+
+        # Use index to cycle through available types/cities for that state
+        facility_type = state_facility_types[(i - 1) % len(state_facility_types)]
+        city = state_cities[(i - 1) % len(state_cities)]
+
+        rows.append({
+            "facility_id": f"FAC{i:03d}",
+            "facility_name": f"{city} {facility_type}",
+            "facility_type": facility_type,
+            "city": city,
+            "state_province": state,
             "country": "US",
-            "grid_region": "OR",
+            "grid_region": state,
             "active_flag": "Y",
             "opened_date": "2021-01-01",
-        },
-        {
-            "facility_id": "FAC002",
-            "facility_name": "Clackamas Distribution Center",
-            "facility_type": "Distribution",
-            "city": "Clackamas",
-            "state_province": "OR",
-            "country": "US",
-            "grid_region": "OR",
-            "active_flag": "Y",
-            "opened_date": "2021-06-01",
-        },
-        {
-            "facility_id": "FAC003",
-            "facility_name": "Vancouver Warehouse",
-            "facility_type": "Warehouse",
-            "city": "Vancouver",
-            "state_province": "WA",
-            "country": "US",
-            "grid_region": "WA",
-            "active_flag": "Y",
-            "opened_date": "2022-03-15",
-        },
-        {
-            "facility_id": "FAC004",
-            "facility_name": "Denver Production Kitchen",
-            "facility_type": "Manufacturing",
-            "city": "Denver",
-            "state_province": "CO",
-            "country": "US",
-            "grid_region": "CO",
-            "active_flag": "Y",
-            "opened_date": "2023-02-01",
-        },
-        {
-            "facility_id": "FAC005",
-            "facility_name": "Oakland Sales Office",
-            "facility_type": "Office",
-            "city": "Oakland",
-            "state_province": "CA",
-            "country": "US",
-            "grid_region": "CA",
-            "active_flag": "Y",
-            "opened_date": "2022-09-01",
-        },
-    ]
+        })
+
     return pd.DataFrame(rows)
 
 
-def make_product_lines() -> pd.DataFrame:
+def make_product_lines(shared_seed_dir: Path) -> pd.DataFrame:
     """Product line lets us calculate intensity by business line later."""
-    rows = [
-        {"product_line_id": "PL001", "product_line_name": "Gummies", "product_family": "Edibles", "active_flag": "Y"},
-        {"product_line_id": "PL002", "product_line_name": "Beverages", "product_family": "Beverage", "active_flag": "Y"},
-        {"product_line_id": "PL003", "product_line_name": "Infused Chocolates", "product_family": "Edibles", "active_flag": "Y"},
-        {"product_line_id": "PL004", "product_line_name": "Packaging Shared", "product_family": "Shared", "active_flag": "Y"},
-    ]
+    product_seed_file = shared_seed_dir / "product_seed.csv"
+    
+    if not product_seed_file.exists():
+        raise FileNotFoundError(f"Shared seed file not found: {product_seed_file}")
+    
+    product_df = pd.read_csv(product_seed_file)
+    
+    # Extract unique product families from seed and map to product lines
+    unique_families = product_df["product_family"].unique()
+    
+    rows = []
+    for i, family in enumerate(unique_families, start=1):
+        rows.append({
+            "product_line_id": f"PL{i:03d}",
+            "product_line_name": f"{family.capitalize()} Line",
+            "product_family": family,
+            "active_flag": "Y",
+        })
+    
+    # Add packaging shared line for GHG reporting
+    rows.append({
+        "product_line_id": "PL004",
+        "product_line_name": "Packaging Shared",
+        "product_family": "Shared",
+        "active_flag": "Y",
+    })
+    
     return pd.DataFrame(rows)
 
 
@@ -516,13 +528,14 @@ def main() -> None:
     project_root = get_project_root()
     ensure_dirs(project_root)
     shared_source_systems_dir = get_shared_source_systems_dir(project_root)
+    shared_seed_dir = get_shared_seed_dir(repo_root)
 
     months = pd.date_range(cfg.start, cfg.end, freq="MS")
     drop_date = months.max() + pd.offsets.MonthEnd(0)
     load_id = uuid.uuid4().hex[:12]
 
-    facilities = make_facilities()
-    product_lines = make_product_lines()
+    facilities = make_facilities(shared_seed_dir)
+    product_lines = make_product_lines(shared_seed_dir)
     emission_factors = make_emission_factors()
 
     electricity = generate_electricity_bills(cfg, rng, months, facilities)

@@ -90,6 +90,10 @@ def get_repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def get_shared_seed_dir(repo_root: Path) -> Path:
+    return repo_root / "shared" / "seeds"
+
+
 def ensure_dirs(root: Path) -> None:
     (root / "docs").mkdir(parents=True, exist_ok=True)
     (root / "data" / "source_extracts").mkdir(parents=True, exist_ok=True)
@@ -114,42 +118,86 @@ def current_dir(root: Path, domain: str, system: str) -> Path:
 
 
 # -----------------------------
-# Reference data
+# Reference data (from shared seeds)
 # -----------------------------
 
-WYLD_PRODUCTS: list[dict[str, Any]] = [
-    {"sku": "SKU0001", "product_name": "Wyld Blood Orange 1:1 THC:CBC Gummies", "base_price": 10.00, "cogs_ratio": 0.45},
-    {"sku": "SKU0002", "product_name": "Wyld Boysenberry 1:1:1 THC:CBD:CBN Gummies", "base_price": 10.00, "cogs_ratio": 0.47},
-    {"sku": "SKU0003", "product_name": "Wyld Elderberry 2:1 THC:CBN Gummies", "base_price": 10.50, "cogs_ratio": 0.46},
-    {"sku": "SKU0004", "product_name": "Wyld Grapefruit 1:1:1 THC:CBG:CBC Gummies", "base_price": 10.50, "cogs_ratio": 0.48},
-    {"sku": "SKU0005", "product_name": "Wyld Huckleberry THC Gummies", "base_price": 10.00, "cogs_ratio": 0.42},
-    {"sku": "SKU0006", "product_name": "Wyld Kiwi 1:1 THC:THCv Gummies", "base_price": 10.50, "cogs_ratio": 0.49},
-    {"sku": "SKU0007", "product_name": "Wyld Marionberry THC Gummies", "base_price": 10.00, "cogs_ratio": 0.42},
-    {"sku": "SKU0008", "product_name": "Wyld Peach 2:1 CBD:THC Gummies", "base_price": 10.50, "cogs_ratio": 0.46},
-    {"sku": "SKU0009", "product_name": "Wyld Pear 1:1 THC:CBG Gummies", "base_price": 10.50, "cogs_ratio": 0.47},
-    {"sku": "SKU0010", "product_name": "Wyld Pomegranate 1:1 THC:CBD Gummies", "base_price": 10.50, "cogs_ratio": 0.46},
-    {"sku": "SKU0011", "product_name": "Wyld Raspberry THC Gummies", "base_price": 10.50, "cogs_ratio": 0.42},
-    {"sku": "SKU0012", "product_name": "Wyld Sour Apple THC Gummies", "base_price": 10.50, "cogs_ratio": 0.42},
-    {"sku": "SKU0013", "product_name": "Wyld Sour Cherry THC Gummies", "base_price": 10.50, "cogs_ratio": 0.42},
-    {"sku": "SKU0014", "product_name": "Wyld Sour Tangerine THC Gummies", "base_price": 10.50, "cogs_ratio": 0.43},
-    {"sku": "SKU0015", "product_name": "Wyld Strawberry 20:1 CBD:THC Gummies", "base_price": 10.50, "cogs_ratio": 0.47},
-]
+def load_products_from_seed(shared_seed_dir: Path) -> list[dict[str, Any]]:
+    """Load products from shared seed file, adding cogs_ratio for compatibility."""
+    product_seed_file = shared_seed_dir / "product_seed.csv"
+
+    if not product_seed_file.exists():
+        raise FileNotFoundError(f"Shared seed file not found: {product_seed_file}")
+
+    df = pd.read_csv(product_seed_file)
+
+    # Map seed columns to expected format, add cogs_ratio
+    products = []
+    for _, row in df.iterrows():
+        products.append({
+            "sku": row["sku"],
+            "product_name": row["product_name"],
+            "base_price": row["base_price"],
+            "cogs_ratio": 0.45,  # Default cogs_ratio for compatibility
+        })
+
+    return products
 
 
-def make_stores(n: int) -> pd.DataFrame:
-    states = ["OR", "WA", "CA", "CO", "AZ", "NV", "IL", "MI"]
+def load_stores_from_seed(shared_seed_dir: Path, n: int = None) -> pd.DataFrame:
+    """Load stores from shared seed file."""
+    location_seed_file = shared_seed_dir / "location_seed.csv"
+
+    if not location_seed_file.exists():
+        raise FileNotFoundError(f"Shared seed file not found: {location_seed_file}")
+
+    df = pd.read_csv(location_seed_file)
+
+    # Map seed columns to expected format
     rows = []
-    for i in range(1, n + 1):
-        st = states[(i - 1) % len(states)]
-        rows.append(
-            {
+    for _, row in df.iterrows():
+        rows.append({
+            "store_id": row["store_code"],
+            "store_name": f"{row['state']} Account {row['store_code'][2:]}",
+            "state": row["state"],
+            "country": "US",
+        })
+
+    result_df = pd.DataFrame(rows)
+
+    # If n is specified and we need more stores, generate additional ones
+    if n is not None and len(result_df) < n:
+        states = ["AZ", "NV", "IL", "MI", "NM", "NY", "MA", "MD"]
+        for i in range(len(result_df) + 1, n + 1):
+            st = states[(i - 1) % len(states)]
+            rows.append({
                 "store_id": f"{st}{i:03d}",
                 "store_name": f"{st} Account {i:03d}",
                 "state": st,
                 "country": "US",
-            }
-        )
-    return pd.DataFrame(rows)
+            })
+        result_df = pd.DataFrame(rows)
+
+    return result_df
+
+
+def load_channels_from_seed(shared_seed_dir: Path) -> pd.DataFrame:
+    """Load channels from shared seed file."""
+    channel_seed_file = shared_seed_dir / "channel_seed.csv"
+    
+    if not channel_seed_file.exists():
+        raise FileNotFoundError(f"Shared seed file not found: {channel_seed_file}")
+    
+    return pd.read_csv(channel_seed_file)
+
+
+def load_calendar_from_seed(shared_seed_dir: Path) -> pd.DataFrame:
+    """Load calendar from shared seed file."""
+    calendar_seed_file = shared_seed_dir / "calendar_seed.csv"
+    
+    if not calendar_seed_file.exists():
+        raise FileNotFoundError(f"Shared seed file not found: {calendar_seed_file}")
+    
+    return pd.read_csv(calendar_seed_file)
 
 
 def month_seasonality(month: int) -> float:
@@ -298,19 +346,20 @@ def gen_sales_distributor_day(
     rng: np.random.Generator,
     d: pd.Timestamp,
     stores: pd.DataFrame,
+    products: list[dict[str, Any]],
+    channels: list[str],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Returns:
       clean_df: business truth
       messy_df: upstream messy extract version
     """
-    channels = ["Retail", "Wholesale", "Distributor"]
     rows: list[dict[str, Any]] = []
     season = month_seasonality(int(d.month))
     wd = int(d.weekday())
 
     for _, s in stores.iterrows():
-        for prod in WYLD_PRODUCTS[: cfg.n_products]:
+        for prod in products[: cfg.n_products]:
             for ch in channels:
                 base = 2.0 * season * weekday_factor(wd, ch) * rng.uniform(0.7, 1.3)
                 prob = float(np.clip(1 / (1 + np.exp(-(base - 1.2))), 0.10, 0.95))
@@ -376,7 +425,7 @@ def gen_sales_distributor_day(
     return clean_df, messy_df
 
 
-def gen_pos_transactions_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
+def gen_pos_transactions_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame, products: list[dict[str, Any]]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     txn_base = int(d.strftime("%Y%m%d")) * 100000
 
@@ -388,7 +437,7 @@ def gen_pos_transactions_day(cfg: Config, rng: np.random.Generator, d: pd.Timest
     for _, s in sample_stores.iterrows():
         n_txn = int(rng.integers(10, 60))
         for t in range(n_txn):
-            prod = WYLD_PRODUCTS[int(rng.integers(0, cfg.n_products))]
+            prod = products[int(rng.integers(0, cfg.n_products))]
             qty = int(max(1, rng.poisson(2)))
             unit = float(prod["base_price"]) * float(rng.normal(1.0, 0.06))
             disc = float(np.clip(rng.normal(0.05, 0.05), 0, 0.4))
@@ -423,10 +472,10 @@ def gen_pos_transactions_day(cfg: Config, rng: np.random.Generator, d: pd.Timest
     return df
 
 
-def gen_inventory_snapshot_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
+def gen_inventory_snapshot_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame, products: list[dict[str, Any]]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     for _, s in stores.iterrows():
-        for prod in WYLD_PRODUCTS[: cfg.n_products]:
+        for prod in products[: cfg.n_products]:
             on_hand = int(max(0, rng.normal(120, 40)))
             receipts = int(max(0, rng.normal(15, 10))) if rng.random() < 0.18 else 0
             shipments = int(max(0, rng.normal(10, 8)))
@@ -474,7 +523,7 @@ def gen_inventory_snapshot_day(cfg: Config, rng: np.random.Generator, d: pd.Time
     )
 
 
-def gen_wms_shipments_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
+def gen_wms_shipments_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame, products: list[dict[str, Any]]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     base_id = int(d.strftime("%Y%m%d")) * 10000
     carriers = ["UPS", "FedEx", "OnTrac", "USPS"]
@@ -486,7 +535,7 @@ def gen_wms_shipments_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp
 
     for _, s in sample_stores.iterrows():
         for j in range(int(rng.integers(3, 15))):
-            prod = WYLD_PRODUCTS[int(rng.integers(0, cfg.n_products))]
+            prod = products[int(rng.integers(0, cfg.n_products))]
             units = int(max(1, rng.poisson(6)))
             rows.append(
                 {
@@ -784,7 +833,7 @@ def gen_dispensary_master_day(cfg: Config, rng: np.random.Generator, d: pd.Times
     )
 
 
-def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame) -> pd.DataFrame:
+def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd.Timestamp, stores: pd.DataFrame, products: list[dict[str, Any]]) -> pd.DataFrame:
     statuses = ["Carried", "Not Carried", "Pending", "Discontinued"]
     reasons = {
         "Carried": ["Active assortment", "Top seller", "Seasonal promo", "Core lineup"],
@@ -802,7 +851,7 @@ def gen_sku_distribution_status_day(cfg: Config, rng: np.random.Generator, d: pd
         store_code = s["store_id"]
         intensity = store_intensity[store_code]
 
-        for prod in WYLD_PRODUCTS[: cfg.n_products]:
+        for prod in products[: cfg.n_products]:
             sku = prod["sku"]
             p_carried = float(np.clip(intensity + rng.normal(0.0, 0.06), 0.05, 0.98))
             r = rng.random()
@@ -1774,7 +1823,15 @@ def main() -> None:
     ensure_dirs(root)
 
     rng = np.random.default_rng(cfg.seed)
-    stores = make_stores(cfg.n_stores)
+    
+    # Load reference data from shared seeds
+    shared_seed_dir = get_shared_seed_dir(repo)
+    products = load_products_from_seed(shared_seed_dir)
+    stores = load_stores_from_seed(shared_seed_dir, cfg.n_stores)
+    channels_df = load_channels_from_seed(shared_seed_dir)
+
+    # Convert channels DataFrame to list for compatibility
+    channels = channels_df["channel"].tolist()
 
     day_range = pd.date_range(cfg.start, cfg.end, freq="D")
     week_range = pd.date_range(cfg.start, cfg.end, freq="W-SUN")
@@ -1862,7 +1919,7 @@ def main() -> None:
     # -------------------------
     for d in day_range:
         # sales distributor
-        dist_clean, dist_mess = gen_sales_distributor_day(cfg, rng, d, stores)
+        dist_clean, dist_mess = gen_sales_distributor_day(cfg, rng, d, stores, products, channels)
         sales_truth_daily_rows.append(dist_clean[["sale_date", "gross_sales", "net_sales", "cogs"]].copy())
 
         p_in = incoming_dir(root, "sales", "distributor", d)
@@ -1978,7 +2035,7 @@ def main() -> None:
         )
 
         # sku distribution status
-        sku_dist_mess = gen_sku_distribution_status_day(cfg, rng, d, stores)
+        sku_dist_mess = gen_sku_distribution_status_day(cfg, rng, d, stores, products)
         p_in = incoming_dir(root, "reference", "assortment", d)
         p_cur = current_dir(root, "reference", "assortment")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2016,7 +2073,7 @@ def main() -> None:
         )
 
         # pos
-        pos_raw = gen_pos_transactions_day(cfg, rng, d, stores)
+        pos_raw = gen_pos_transactions_day(cfg, rng, d, stores, products)
         p_in = incoming_dir(root, "sales", "pos", d)
         p_cur = current_dir(root, "sales", "pos")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2054,7 +2111,7 @@ def main() -> None:
         )
 
         # inventory snapshot
-        inv_mess = gen_inventory_snapshot_day(cfg, rng, d, stores)
+        inv_mess = gen_inventory_snapshot_day(cfg, rng, d, stores, products)
         p_in = incoming_dir(root, "ops", "erp", d)
         p_cur = current_dir(root, "ops", "erp")
         p_in.mkdir(parents=True, exist_ok=True)
@@ -2092,7 +2149,7 @@ def main() -> None:
         )
 
         # wms shipments
-        wms_raw = gen_wms_shipments_day(cfg, rng, d, stores)
+        wms_raw = gen_wms_shipments_day(cfg, rng, d, stores, products)
         p_in = incoming_dir(root, "ops", "wms", d)
         p_cur = current_dir(root, "ops", "wms")
         p_in.mkdir(parents=True, exist_ok=True)
