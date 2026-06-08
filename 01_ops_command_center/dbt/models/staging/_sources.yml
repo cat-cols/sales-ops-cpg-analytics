@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw source data tables loaded from CSV files
+    database: wyld_chyld
+    schema: raw
+    tables:
+      - name: pos_transactions_csv
+        description: Raw POS transaction data from CSV source
+      - name: dispensary_master
+        description: Dispensary master/reference data
+      - name: sales_distributor_extract
+        description: Distributor daily sales extract
+      - name: inventory_erp_snapshot
+        description: ERP inventory snapshot
+      - name: finance_actuals_summary
+        description: Monthly finance actuals summary
+      - name: labor_hours_payroll_export
+        description: Weekly payroll export
+      - name: account_status
+        description: Account/customer status by dispensary
+      - name: sku_distribution_status
+        description: SKU distribution status by store/account
+      - name: timeclock_punches
+        description: Timeclock punch data
+      - name: wms_shipments
+        description: WMS shipments data

@@ -1,0 +1,12 @@
+ops_command_center:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: b
+      password: ""
+      port: 5432
+      dbname: wyld_chyld
+      schema: public
+      threads: 4
