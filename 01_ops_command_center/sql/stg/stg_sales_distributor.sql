@@ -1,13 +1,13 @@
 -- stg_sales_distributor.sql
--- Standardize distributor daily sales extracts into a boring, typed, joinable staging view.
+-- Standardize sell-through data (wholesaler to retailer) for manufacturer model
+-- Updated to use sell-through extract instead of traditional distributor sales
+-- Raw source: raw.sell_through_extract
+-- Output: stg.stg_sales_distributor
 
--- dbt:
--- create schema if not exists stg;
+create schema if not exists stg;
 
--- debug view: SELECT * FROM sales_distributor_extract;
+-- debug view: SELECT * FROM raw.sell_through_extract;
 
-
---
 create or replace view stg.stg_sales_distributor as
 with base as (
     select
@@ -22,15 +22,15 @@ with base as (
         sale_date,
         sale_date_raw,
 
-        store_id_norm,
-        store_id_raw,
+        store_code as store_id_norm,
+        store_code as store_id_raw,
 
         sku,
-        product_name_norm,
-        product_name_raw,
+        sku_name as product_name_norm,
+        sku_name as product_name_raw,
 
-        channel_norm,
-        channel_raw,
+        channel as channel_norm,
+        channel as channel_raw,
 
         qty,
         qty_raw,
@@ -51,11 +51,18 @@ with base as (
         cogs,
         cogs_raw,
 
-        orders,
-        orders_raw,
-        customers,
-        customers_raw
-    from raw.sales_distributor_extract
+        -- Additional fields from sell-through data
+        wholesaler_license,
+        wholesaler_name,
+        retailer_name,
+        retailer_county,
+
+        -- Default orders/customers for sell-through
+        1 as orders,
+        1 as orders_raw,
+        1 as customers,
+        1 as customers_raw
+    from raw.sell_through_extract
 ),
 casted as (
     select

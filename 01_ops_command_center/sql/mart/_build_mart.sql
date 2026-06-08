@@ -20,9 +20,6 @@
 \ir core/dim_store.sql
 \ir core/dim_sku.sql
 
--- Optional / currently stubby in your repo:
--- \ir core/_dim_channel.sql
--- \ir core/_dim_state.sql
 
 -- Optional controls (keep commented until verified correct):
 -- NOTE: core/controls_freshness.sql is currently incorrect in your repo (duplicates dim_sku)
@@ -33,9 +30,17 @@
 -- ----------------------------
 \echo ''
 \echo '--- MART: sales facts ---'
-\ir sales/fact_sales_distributor_daily.sql
-\ir sales/fact_sales_pos_daily.sql
+
+-- Manufacturer model sales facts
+\ir sales/fact_sales_b2b_daily.sql
+\ir sales/fact_sales_direct_daily.sql
+\ir sales/fact_sales_sell_through_daily.sql
 \ir sales/fact_sales_daily.sql
+
+-- Legacy sales facts (kept for reference)
+-- \ir sales/fact_sales_distributor_daily.sql
+-- \ir sales/fact_sales_pos_daily.sql
+
 \ir sales/agg_sales_store_daily.sql
 \ir sales/fact_distribution_coverage.sql
 
@@ -88,7 +93,10 @@
 -- ----------------------------
 \echo ''
 \echo '--- MART: recon ---'
-\ir recon/recon_sales_distributor_vs_pos.sql
+
+-- Legacy reconciliation (kept for reference)
+-- \ir recon/recon_sales_distributor_vs_pos.sql
+
 \ir finance/recon_sales_to_gl_monthly.sql
 
 -- ----------------------------

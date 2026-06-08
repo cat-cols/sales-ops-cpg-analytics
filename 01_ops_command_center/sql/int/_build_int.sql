@@ -26,10 +26,18 @@
 -- ----------------------------
 \echo ''
 \echo '--- INT: sales ---'
-\ir sales/int_sales_distributor_dedup.sql
-\ir sales/int_pos_dedup.sql
-\ir sales/int_pos_daily.sql
-\ir sales/int_sales_conformed.sql
+
+-- Manufacturer model integration views
+\ir sales/int_b2b_dedup.sql
+\ir sales/int_direct_dedup.sql
+\ir sales/int_sell_through_dedup.sql
+\ir sales/int_sales_conformed_manufacturer.sql
+
+-- Legacy integration views (kept for reference)
+-- \ir sales/int_sales_distributor_dedup.sql
+-- \ir sales/int_pos_dedup.sql
+-- \ir sales/int_pos_daily.sql
+-- \ir sales/int_sales_conformed.sql
 -- Optional alternative (leave off unless you intentionally want raw->int bypass):
 -- \ir sales/int_pos_dedup_from_raw.sql
 
