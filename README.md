@@ -148,7 +148,7 @@ Large synthetic datasets and local database artifacts are intended to be generat
 
 ## Synthetic enterprise analytics sandbox
 
-This portfolio uses a synthetic “Wyld-like” analytics environment designed to simulate realistic business analyst workflows across multiple domains.
+This portfolio uses a synthetic analytics environment designed to simulate realistic business analyst workflows across multiple domains.
 
 ### Synthetic environment highlights
 * **Date range:** 2022-01-01 to 2026-02-23
