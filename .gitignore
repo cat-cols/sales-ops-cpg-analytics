@@ -1,58 +1,154 @@
+# ============================================================================
+# DATA DIRECTORIES
+# ============================================================================
+data/**
+
 **/data/raw/
 **/data/processed/
 **/data/external/
 **/data/source_extracts/
 **/data/modeled/
+**/data/reference/**/raw/
+**/data/reference/**/processed/
 
-# ignore all databases + powerbi + sql
+# ============================================================================
+# ENVIRONMENT & CONFIGURATION
+# ============================================================================
 environment/*
 !environment/.gitkeep
 !environment/README.md
+.env
+.env.local
+.env.*.local
+.envrc
+secrets/
+credentials/
+*.pem
+*.key
+*.crt
 
-# large files
-*.zip
-**/outputs/large/
+# ============================================================================
+# DATABASES
+# ============================================================================
 *.db
 *.sqlite
 *.sqlite3
-*.pbitmp
+*.duckdb
+*.parquet
+
+# ============================================================================
+# PYTHON
+# ============================================================================
 .venv/
-.env
+venv/
+ENV/
+env/
 __pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.tox/
+.hypothesis/
 .ipynb_checkpoints/
-.DS_Store
 
-# excel files to ignore
-**/data/external/*.xlsx
+# ============================================================================
+# BI FILES (Large binary files)
+# ============================================================================
+# Tableau
+*.twb
+*.twbx
+*.tds
+*.tdsx
+*.hyper
+*.tde
+
+# Power BI
+*.pbix
+*.pbit
+*.pbitmp
+
+# ============================================================================
+# EXCEL & SPREADSHEETS
+# ============================================================================
 *.xlsx
+*.xls
+*.xlsm
+*.xlsb
+**/data/external/*.xlsx
+**/data/reference/**/*.xlsx
 
-# personal notes
-notes/**
+# ============================================================================
+# LARGE FILES & ARCHIVES
+# ============================================================================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+**/outputs/large/
 
-# repo level acces
-_wyld-business-analyst/**
-01_ops_command_center/_notes/**
-02_quarterly_dc_qaqc_system/_notes/**
-03_forecasting_variance_story/_notes/**
-04_ghg_scope_reporting/_notes/**
-05_decision_engine/_notes/**
-06_fpna_planning/_notes/**
-07_sales_data_coordinator/_notes/**
+# ============================================================================
+# IDE & EDITOR
+# ============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-docs/licenses_by_type.pdf
-
-# existing projects
-existing-projects.md
-
-interview-questions.md
-resume.md
-cover-letter.md
-reaching-out.md
-timeline.md
-
-# old projects
-archive/**
-
-# misc
+# ============================================================================
+# LOGS & TEMPORARY
+# ============================================================================
 logs/**
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+.cache/
+
+# ============================================================================
+# PERSONAL & CONFIDENTIAL
+# ============================================================================
+notes/**
+01_ops_command_center/notes/**
+02_quarterly_dc_qaqc_system/notes/**
+03_forecasting_variance_story/notes/**
+04_ghg_scope_reporting/notes/**
+05_decision_engine/notes/**
+06_fpna_planning/notes/**
+
+
+# ============================================================================
+# DOCUMENTATION & ARTIFACTS
+# ============================================================================
+docs/licenses_by_type.pdf
 README2.md
+job-description.md
+README-pipeline.png
+
+# ============================================================================
+# ARCHIVE & OLD PROJECTS
+# ============================================================================
+archive/**
+01_ops_command_center/data/raw/*.csv
+01_ops_command_center/data/modeled/*.csv
