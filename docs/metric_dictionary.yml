@@ -1,0 +1,378 @@
+# Althea Analytics Portfolio - Metric Dictionary
+# Repo-wide metric definitions for consistency across all projects
+# Version: 1.0
+# Last Updated: 2024-06-07
+
+metrics:
+  # ===============================
+  # SALES METRICS
+  # ===============================
+
+  gross_sales:
+    definition: "Total sales amount before any discounts"
+    formula: "sum(units_sold * unit_list_price)"
+    grain: "daily"
+    data_type: "numeric"
+    category: "sales"
+    business_context: "Represents the total value of products sold at list price"
+    examples:
+      - "Daily gross sales by store"
+      - "Monthly gross sales by SKU"
+      - "Annual gross sales by channel"
+
+  net_sales:
+    definition: "Gross sales minus discounts and returns"
+    formula: "gross_sales - discount_amount"
+    grain: "daily"
+    data_type: "numeric"
+    category: "sales"
+    business_context: "The actual revenue recognized after discounts"
+    examples:
+      - "Daily net sales by store"
+      - "Monthly net sales by SKU"
+      - "Annual net sales by channel"
+
+  discount_amount:
+    definition: "Total monetary value of discounts applied"
+    formula: "gross_sales - net_sales"
+    grain: "daily"
+    data_type: "numeric"
+    category: "sales"
+    business_context: "Total value of promotional discounts and price reductions"
+    examples:
+      - "Daily discount amount by store"
+      - "Monthly discount amount by SKU"
+
+  discount_rate:
+    definition: "Discount expressed as a percentage of gross sales"
+    formula: "discount_amount / gross_sales"
+    grain: "daily"
+    data_type: "numeric"
+    category: "sales"
+    business_context: "Average discount rate applied to sales"
+    examples:
+      - "Daily discount rate by store"
+      - "Monthly discount rate by SKU"
+
+  units_sold:
+    definition: "Total quantity of products sold"
+    formula: "sum(quantity)"
+    grain: "daily"
+    data_type: "integer"
+    category: "sales"
+    business_context: "Physical volume of products sold"
+    examples:
+      - "Daily units sold by store"
+      - "Monthly units sold by SKU"
+
+  order_count:
+    definition: "Number of distinct orders placed"
+    formula: "count(distinct order_id)"
+    grain: "daily"
+    data_type: "integer"
+    category: "sales"
+    business_context: "Number of individual customer orders"
+    examples:
+      - "Daily order count by store"
+      - "Monthly order count by channel"
+      
+  customer_count:
+    definition: "Number of distinct customers who made purchases"
+    formula: "count(distinct customer_id)"
+    grain: "daily"
+    data_type: "integer"
+    category: "sales"
+    business_context: "Number of unique customers making purchases"
+    examples:
+      - "Daily customer count by store"
+      - "Monthly customer count by region"
+      
+  average_selling_price:
+    definition: "Average price per unit sold"
+    formula: "net_sales / units_sold"
+    grain: "daily"
+    data_type: "numeric"
+    category: "sales"
+    business_context: "Average price customers pay per unit"
+    examples:
+      - "Daily ASP by SKU"
+      - "Monthly ASP by category"
+      
+  # ===============================
+  # PROFITABILITY METRICS
+  # ===============================
+  
+  cogs:
+    definition: "Cost of goods sold - direct costs to produce sold items"
+    formula: "sum(units_sold * unit_cost)"
+    grain: "daily"
+    data_type: "numeric"
+    category: "profitability"
+    business_context: "Direct manufacturing and distribution costs"
+    examples:
+      - "Daily COGS by SKU"
+      - "Monthly COGS by category"
+      
+  gross_margin:
+    definition: "Gross profit in monetary terms"
+    formula: "net_sales - cogs"
+    grain: "daily"
+    data_type: "numeric"
+    category: "profitability"
+    business_context: "Profit after direct costs but before operating expenses"
+    examples:
+      - "Daily gross margin by store"
+      - "Monthly gross margin by SKU"
+      
+  gross_margin_percent:
+    definition: "Gross margin expressed as percentage of net sales"
+    formula: "(gross_margin / net_sales) * 100"
+    grain: "daily"
+    data_type: "numeric"
+    category: "profitability"
+    business_context: "Profitability percentage after direct costs"
+    examples:
+      - "Daily gross margin % by SKU"
+      - "Monthly gross margin % by category"
+      
+  # ===============================
+  # INVENTORY METRICS
+  # ===============================
+  
+  on_hand_units:
+    definition: "Physical quantity of inventory available"
+    formula: "sum(ending_inventory)"
+    grain: "daily"
+    data_type: "integer"
+    category: "inventory"
+    business_context: "Current inventory levels"
+    examples:
+      - "Daily on-hand units by SKU"
+      - "Daily on-hand units by location"
+      
+  received_units:
+    definition: "Quantity of inventory received from suppliers/production"
+    formula: "sum(units_received)"
+    grain: "daily"
+    data_type: "integer"
+    category: "inventory"
+    business_context: "Inventory inflows from production or suppliers"
+    examples:
+      - "Daily received units by SKU"
+      - "Monthly received units by location"
+      
+  shipped_units:
+    definition: "Quantity of inventory shipped to customers"
+    formula: "sum(units_shipped)"
+    grain: "daily"
+    data_type: "integer"
+    category: "inventory"
+    business_context: "Inventory outflows to customers"
+    examples:
+      - "Daily shipped units by SKU"
+      - "Monthly shipped units by location"
+      
+  days_of_supply:
+    definition: "Number of days current inventory will last at current sales rate"
+    formula: "on_hand_units / avg_daily_sales"
+    grain: "daily"
+    data_type: "numeric"
+    category: "inventory"
+    business_context: "Inventory coverage in days"
+    examples:
+      - "Daily days of supply by SKU"
+      - "Monthly days of supply by location"
+      
+  in_stock_rate:
+    definition: "Percentage of time items are in stock"
+    formula: "(days_in_stock / total_days) * 100"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "inventory"
+    business_context: "Inventory availability percentage"
+    examples:
+      - "Monthly in-stock rate by SKU"
+      - "Quarterly in-stock rate by category"
+      
+  # ===============================
+  # LABOR METRICS
+  # ===============================
+  
+  labor_hours:
+    definition: "Total hours worked by employees"
+    formula: "sum(hours_worked)"
+    grain: "daily"
+    data_type: "numeric"
+    category: "labor"
+    business_context: "Total labor time invested"
+    examples:
+      - "Daily labor hours by location"
+      - "Monthly labor hours by department"
+      
+  overtime_hours:
+    definition: "Hours worked beyond standard work hours"
+    formula: "sum(overtime_hours)"
+    grain: "daily"
+    data_type: "numeric"
+    category: "labor"
+    business_context: "Additional labor costs from overtime"
+    examples:
+      - "Daily overtime hours by location"
+      - "Monthly overtime hours by employee"
+      
+  headcount:
+    definition: "Number of active employees"
+    formula: "count(distinct employee_id)"
+    grain: "daily"
+    data_type: "integer"
+    category: "labor"
+    business_context: "Workforce size"
+    examples:
+      - "Daily headcount by location"
+      - "Monthly headcount by department"
+      
+  labor_cost_amount:
+    definition: "Total cost of labor including wages and benefits"
+    formula: "sum(labor_hours * hourly_rate + benefits_cost)"
+    grain: "daily"
+    data_type: "numeric"
+    category: "labor"
+    business_context: "Total labor expenditure"
+    examples:
+      - "Daily labor cost by location"
+      - "Monthly labor cost by department"
+      
+  # ===============================
+  # KPI METRICS
+  # ===============================
+  
+  sales_per_labor_hour:
+    definition: "Net sales generated per labor hour"
+    formula: "net_sales / labor_hours"
+    grain: "daily"
+    data_type: "numeric"
+    category: "kpi"
+    business_context: "Labor productivity metric"
+    examples:
+      - "Daily sales per labor hour by location"
+      - "Monthly sales per labor hour by department"
+      
+  sales_per_square_foot:
+    definition: "Net sales per square foot of retail space"
+    formula: "net_sales / retail_square_footage"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "kpi"
+    business_context: "Space utilization efficiency"
+    examples:
+      - "Monthly sales per square foot by location"
+      - "Annual sales per square foot by region"
+      
+  inventory_turnover:
+    definition: "How many times inventory is sold and replaced in a period"
+    formula: "cogs / average_inventory_value"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "kpi"
+    business_context: "Inventory efficiency metric"
+    examples:
+      - "Monthly inventory turnover by SKU"
+      - "Annual inventory turnover by category"
+      
+  # ===============================
+  # MANUFACTURER MODEL SPECIFIC METRICS
+  # ===============================
+  
+  b2b_sales:
+    definition: "Sales from manufacturer to wholesalers/distributors"
+    formula: "sum(net_sales) where channel = 'B2B'"
+    grain: "daily"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Manufacturer wholesale revenue"
+    examples:
+      - "Daily B2B sales by wholesaler"
+      - "Monthly B2B sales by SKU"
+      
+  direct_sales:
+    definition: "Sales from manufacturer directly to large retail chains"
+    formula: "sum(net_sales) where channel = 'Direct'"
+    grain: "daily"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Manufacturer direct-to-retail revenue"
+    examples:
+      - "Daily direct sales by retailer"
+      - "Monthly direct sales by SKU"
+      
+  sell_through:
+    definition: "Sales from wholesalers to retailers (market visibility)"
+    formula: "sum(net_sales) where channel = 'Sell-through'"
+    grain: "daily"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Downstream retail sales for market intelligence"
+    examples:
+      - "Daily sell-through by retailer"
+      - "Monthly sell-through by SKU"
+      
+  distribution_coverage:
+    definition: "Percentage of wholesalers/retailers with active sales"
+    formula: "(active_locations / total_locations) * 100"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Market penetration metric"
+    examples:
+      - "Monthly distribution coverage by region"
+      - "Quarterly distribution coverage by SKU"
+      
+  # ===============================
+  # FINANCIAL METRICS
+  # ===============================
+  
+  revenue:
+    definition: "Total recognized revenue from sales"
+    formula: "net_sales"
+    grain: "daily"
+    data_type: "numeric"
+    category: "financial"
+    business_context: "Top-line revenue for financial reporting"
+    examples:
+      - "Daily revenue by channel"
+      - "Monthly revenue by region"
+      
+  ebitda:
+    definition: "Earnings before interest, taxes, depreciation, and amortization"
+    formula: "gross_margin - operating_expenses"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "financial"
+    business_context: "Operating profitability metric"
+    examples:
+      - "Monthly EBITDA by business unit"
+      - "Annual EBITDA by region"
+      
+  operating_expenses:
+    definition: "Total operating expenses excluding COGS"
+    formula: "labor_cost + rent + utilities + marketing + other_opex"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "financial"
+    business_context: "Operating costs to run the business"
+    examples:
+      - "Monthly operating expenses by category"
+      - "Annual operating expenses by region"
+
+# Metadata
+metadata:
+  version: "1.0"
+  created_date: "2024-06-07"
+  last_updated: "2024-06-07"
+  maintained_by: "Analytics Engineering Team"
+  purpose: "Repo-wide metric definitions for consistency across all projects"
+  usage_notes:
+    - "All projects should reference these metric definitions"
+    - "Project-specific variations should be documented in project-level metric dictionaries"
+    - "New metrics should be added here before project-specific implementation"
+    - "Formula syntax uses SQL-like notation for clarity"

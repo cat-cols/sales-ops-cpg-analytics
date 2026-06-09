@@ -1,45 +1,88 @@
 # /requirements.txt
-# Core data stack
-numpy
-pandas
-pyarrow
+# Analytics Engineering Portfolio - Core Dependencies
+# Python >= 3.9
 
-# Excel support
-openpyxl
-xlsxwriter
+# ============================================================================
+# CORE DATA STACK
+# ============================================================================
+numpy>=1.24.0
+pandas>=2.0.0
+pyarrow>=12.0.0
 
-# Database connectors / SQL workflows
-duckdb
-sqlalchemy
+# ============================================================================
+# EXCEL & FILE I/O
+# ============================================================================
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
 
-# Config + validation
-pyyaml
-pydantic
+# ============================================================================
+# DATABASE CONNECTORS & SQL WORKFLOWS
+# ============================================================================
+duckdb>=0.9.0
+sqlalchemy>=2.0.0
+psycopg[binary]>=2.9.0
 
-# Data quality / testing
-great-expectations
-pandera
+# ============================================================================
+# CONFIGURATION & VALIDATION
+# ============================================================================
+pyyaml>=6.0
+pydantic>=2.0.0
 
-# Forecasting (Project 3)
-scikit-learn
-statsmodels
-prophet
+# ============================================================================
+# DATA QUALITY & TESTING
+# ============================================================================
+great-expectations>=0.17.0
+pandera>=0.17.0
 
-# Plotting / exports for docs (optional but useful)
-matplotlib
+# ============================================================================
+# FORECASTING & TIME SERIES (Project 3)
+# ============================================================================
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+prophet>=1.1.0
 
-# Utility
-python-dateutil
+# ============================================================================
+# PLOTTING & VISUALIZATION
+# ============================================================================
+matplotlib>=3.7.0
+seaborn>=0.12.0
 
-# Database connectors / SQL workflows
-duckdb
-sqlalchemy
-psycopg[binary]
+# ============================================================================
+# UTILITY & DATE HANDLING
+# ============================================================================
+python-dateutil>=2.8.0
 
-###
+# ============================================================================
+# DEVELOPMENT & TESTING (Optional - for development workflow)
+# ============================================================================
+# Uncomment these for development environment
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+# black>=23.7.0
+# isort>=5.12.0
+# flake8>=6.1.0
+# mypy>=1.5.0
+# pre-commit>=3.3.0
 
-# bigquery
+# ============================================================================
+# JUPYTER & ANALYSIS (Optional - for notebook-based analysis)
+# ============================================================================
+# Uncomment these for Jupyter notebook support
+# jupyter>=1.0.0
+# ipython>=8.14.0
+# notebook>=7.0.0
 
-# warehouse
+# ============================================================================
+# DOCUMENTATION (Optional - for generating docs)
+# ============================================================================
+# Uncomment these for documentation generation
+# mkdocs>=1.5.0
+# mkdocs-material>=9.1.0
 
-# snowflake-sqlalchemy >= 1.3.0
+# ============================================================================
+# CLOUD WAREHOUSE CONNECTORS (Optional - for future expansion)
+# ============================================================================
+# Uncomment these if connecting to cloud warehouses
+# google-cloud-bigquery>=3.11.0
+# snowflake-connector-python>=3.2.0
+# snowflake-sqlalchemy>=1.5.0

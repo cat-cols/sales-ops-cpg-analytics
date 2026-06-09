@@ -1,4 +1,4 @@
-# Althea-Style Business Analyst Portfolio
+# Wyld-Style Business Analyst Portfolio
 
 ![Project](https://img.shields.io/badge/flagship-Ops%20Command%20Center-4f46e5)
 ![Status](https://img.shields.io/badge/status-active%20multi--project%20portfolio-brightgreen)
@@ -27,16 +27,25 @@ This repository is built to show more than dashboarding. It is meant to demonstr
 
 ## Current portfolio status
 
+### Project completion overview
+- **01_ops_command_center** — 90% complete (manufacturer model integration complete, Tableau dashboards pending)
+- **02_quarterly_dc_qaqc_system** — 75% complete (SQL pipeline complete, Power BI dashboards pending)
+- **03_forecasting_variance_story** — 25% complete (concept defined, implementation pending)
+- **04_ghg_scope_reporting** — 85% complete (SQL pipeline complete, Power BI dashboards pending)
+- **05_decision_engine** — 20% complete (concept defined, implementation pending)
+- **06_fpna_planning** — 5% complete (scope definition pending)
+
+**Overall portfolio: 50% complete**
+
 ### Most complete now
-- **01_ops_command_center** — flagship integrated analytics project
+- **01_ops_command_center** — flagship integrated analytics project with manufacturer model
 - **02_quarterly_dc_qaqc_system** — governed quarterly QA/QC and reconciliation workflow
+- **04_ghg_scope_reporting** — sustainability reporting with audit-ready documentation
 
 ### In progress / planned next
 - **03_forecasting_variance_story** — forecasting + variance analysis
-- **04_ghg_scope_reporting** — sustainability reporting + audit-ready documentation
 - **05_decision_engine** — decision engine and recommendation system
 - **06_fpna_planning** — FPNA planning and forecasting
-- **07_sales_data_coordinator** — sales data coordination and standardization
 
 ### Shared across projects
 - **shared/** — reusable SQL, semantic-model, governance, and documentation templates
@@ -113,48 +122,25 @@ Generate data for a single project:
 
 ```bash
 # Project 1
-python 01_ops_command_center/scripts/generate_project1_data.py
+python3 01_ops_command_center/scripts/generate_project1_data.py
 
 # Project 2
-python 02_quarterly_dc_qaqc_system/scripts/generate_project2_dq_inputs.py
+python3 02_quarterly_dc_qaqc_system/scripts/generate_project2_dq_inputs.py
 
 # Project 3
-python 03_forecasting_variance_story/scripts/generate_project3_forecast_inputs.py
+python3 03_forecasting_variance_story/scripts/generate_project3_forecast_inputs.py
 
 # Project 4
-python 04_ghg_scope_reporting/scripts/generate_project4_ghg_inputs.py
+python3 04_ghg_scope_reporting/scripts/generate_project4_ghg_inputs.py
 ```
 
 Or regenerate data for all projects at once:
 
 ```bash
-python scripts/regenerate_all_data.py
+python3 scripts/regenerate_all_data.py
 ```
 
-> **Note:** Project 1 currently has the most complete end-to-end sample generation workflow. Other projects use a mix of implemented assets and scaffolding as the portfolio is finalized.
-
 ---
-
-## Data strategy
-
-This repository is intentionally kept lightweight for GitHub review.
-
-### Tracked in Git
-
-* code
-* SQL
-* docs
-* templates
-* small sample files
-* diagrams and screenshots
-
-### Not tracked in Git
-
-* large databases (`.db`, `.sqlite`)
-* large raw extracts
-* large modeled outputs
-* local runtime `environment/` data
-* archives / zip bundles
 
 Large synthetic datasets and local database artifacts are intended to be generated locally or distributed separately so the repo stays easy to clone and review.
 
@@ -162,7 +148,7 @@ Large synthetic datasets and local database artifacts are intended to be generat
 
 ## Synthetic enterprise analytics sandbox
 
-This portfolio uses a synthetic “Althea-like” analytics environment designed to simulate realistic business analyst workflows across multiple domains.
+This portfolio uses a synthetic “Wyld-like” analytics environment designed to simulate realistic business analyst workflows across multiple domains.
 
 ### Synthetic environment highlights
 * **Date range:** 2022-01-01 to 2026-02-23
@@ -188,6 +174,8 @@ This portfolio uses a synthetic “Althea-like” analytics environment designed
 
 **Goal:** Build a decision-ready command center that integrates cross-functional data with reconciliation and control logic.
 
+**Status:** 90% complete - Manufacturer model integration complete, Tableau dashboards pending
+
 ### What it demonstrates
 
 * cross-functional KPI design
@@ -196,19 +184,29 @@ This portfolio uses a synthetic “Althea-like” analytics environment designed
 * SQL validation and QA patterns
 * semantic-model and report planning
 * executive walkthrough documentation
+* manufacturer business model (B2B + Direct + Sell-through)
+
+### Recent updates
+* Integrated Althea manufacturer model data (replacing retail POS model)
+* Updated SQL pipeline for manufacturer channels (B2B, Direct, Sell-through)
+* Created comprehensive metric dictionaries (YAML + Markdown)
+* Generated realistic data using Oregon cannabis business licenses (1,053 entities)
+* Updated documentation for manufacturer business context
 
 ### Key folders
 
 * [`01_ops_command_center/sql/`](01_ops_command_center/sql/) — staging, conformance, marts, validation
-* [`01_ops_command_center/docs/`](01_ops_command_center/docs/) — source register, stakeholder notes, reconciliation logs
-* [`01_ops_command_center/powerbi/`](01_ops_command_center/powerbi/) — semantic model planning and report structure
-* [`01_ops_command_center/reports/`](01_ops_command_center/reports/) — exports, ad hoc requests, deck outlines
+* [`01_ops_command_center/docs/`](01_ops_command_center/docs/) — source register, stakeholder notes, reconciliation logs, metric dictionaries
+* [`01_ops_command_center/tableau/`](01_ops_command_center/tableau/) — Tableau implementation guides and calculated fields
+* [`01_ops_command_center/scripts/`](01_ops_command_center/scripts/) — manufacturer model data generation
 
 ---
 
 ## 02 — Quarterly Data Collection + QA/QC System
 
 **Goal:** Simulate a governed quarterly intake, validation, reconciliation, and certification workflow for messy departmental submissions.
+
+**Status:** 75% complete - SQL pipeline complete, Power BI dashboards pending
 
 ### What it demonstrates
 
@@ -219,6 +217,27 @@ This portfolio uses a synthetic “Althea-like” analytics environment designed
 * operational-to-finance reconciliation
 * reporting integrity before publication
 * hold-or-certify decision support
+
+### Current implemented outputs
+* staged quarterly source views
+* governed `dq_rules`, run log, results fact, exceptions detail, and recon tables
+* first-pass completeness, uniqueness, and validity checks
+* reporting views for:
+  * `vw_dq_scorecard`
+  * `vw_open_exceptions`
+  * `vw_reconciliation_summary`
+  * `certified_quarterly_reporting`
+* project documentation including:
+  * quarterly data collection playbook
+  * rules catalog
+  * reconciliation guide
+  * release notes
+
+### What's needed
+* Power BI dashboards (3 pages: Data Quality Monitor, Open Exceptions, Reconciliation & Certification)
+* Power BI screenshots for README
+* Architecture diagram
+* Final README polish
 
 ### Current implemented outputs
 * staged quarterly source views
@@ -247,12 +266,23 @@ This portfolio uses a synthetic “Althea-like” analytics environment designed
 
 **Goal:** Build a forecasting and variance-analysis project that explains not just what happened, but why actuals diverged from plan.
 
+**Status:** 25% complete - Concept defined, implementation pending
+
 ### Planned focus
 
 * forecast vs actual comparisons
 * variance decomposition
 * business-driver framing
 * narrative reporting for commercial and finance audiences
+
+### What's needed
+* Data generation script for forecast/actuals
+* Forecasting model implementation (Prophet/SARIMA)
+* Variance decomposition logic (price/volume/mix)
+* Driver diagnostics (store/SKU/channel/promotions/stockouts)
+* Power BI dashboard pages (Forecast, Variance Bridge, Driver Diagnostics)
+* Executive storytelling slide deck
+* SQL mart views for forecasting
 
 ---
 
@@ -277,7 +307,58 @@ This portfolio uses a synthetic “Althea-like” analytics environment designed
 
 ---
 
-## Shared standards across projects
+## 05 — Decision Engine
+
+**Goal:** Build a decision-support layer that turns trusted analytics marts into business recommendations, alert tables, opportunity tables, and executive-ready summaries.
+
+**Status:** 20% complete - Concept defined, implementation pending
+
+### What it demonstrates
+
+* KPI driver tree design
+* revenue and margin root-cause analysis
+* store / SKU / channel performance flagging
+* low-margin and inventory-risk alert logic
+* opportunity identification
+* executive decision summaries
+* QA checks for decision outputs
+
+### What's needed
+* Data processing logic consuming Project 1 marts
+* KPI driver tree implementation
+* Revenue variance root-cause analysis
+* Alert logic (low margin, inventory risk)
+* Opportunity identification logic
+* Store/SKU performance flagging
+* Executive decision summary views
+* QA checks for decision outputs
+
+---
+
+## 06 — FPNA Planning
+
+**Goal:** Build financial planning and analysis capabilities with budget vs actual comparisons, variance analysis, and rolling forecasts.
+
+**Status:** 5% complete - Scope definition pending
+
+### What it demonstrates
+
+* Budget vs actual comparison logic
+* Forecast integration
+* Variance analysis for financial planning
+* Rolling forecasts implementation
+* FP&A dashboard development
+
+### What's needed
+* Complete project scope definition
+* Data model for FP&A planning
+* Budget vs actual comparison logic
+* Forecast integration
+* Variance analysis for financial planning
+* Rolling forecasts implementation
+* SQL pipeline development
+* Power BI planning dashboards
+* Documentation
 
 This repo uses a `shared/` layer to show repeatable operating discipline across projects.
 

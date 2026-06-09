@@ -1,18 +1,122 @@
 # TODO
 
+## PROJECT COMPLETION STATUS
+
+### Project 1 (01_ops_command_center) - 90% Complete
+**What's Done:**
+- 121 SQL files with complete data pipeline
+- Manufacturer model integration (B2B + Direct + Sell-through)
+- Full staging, integration, and mart layers
+- Data generation script using Althea manufacturer data
+- Comprehensive documentation (README, integration plan)
+- Metric dictionaries (YAML + Markdown)
+- Tableau implementation structure
+- QA controls and reconciliation views
+
+**What's Needed:**
+- Final Tableau dashboard screenshots
+- Executive walkthrough documentation updates
+- Final testing of manufacturer model pipeline
+- Portfolio presentation materials
+
+### Project 2 (02_quarterly_dc_qaqc_system) - 75% Complete
+**What's Done:**
+- 19 SQL files with complete DQ framework
+- Raw landing tables and staging views
+- Governed DQ rules catalog
+- Reconciliation logic (sales vs finance)
+- Reporting views (DQ scorecard, exceptions, reconciliation)
+- Comprehensive documentation (playbook, rules catalog, reconciliation guide)
+- Simulated source data with intentional defects
+
+**What's Needed:**
+- Power BI dashboards (3 pages: Data Quality Monitor, Open Exceptions, Reconciliation & Certification)
+- Power BI screenshots for README
+- Architecture diagram
+- Final README polish with "How to run" section
+- Optional summary deck
+
+### Project 3 (03_forecasting_variance_story) - 25% Complete
+**What's Done:**
+- 10 SQL files with basic structure
+- README with concept definition
+- Power BI folder structure
+- Basic project outline
+
+**What's Needed:**
+- Data generation script for forecast/actuals
+- Forecasting model implementation (Prophet/SARIMA)
+- Variance decomposition logic (price/volume/mix)
+- Driver diagnostics (store/SKU/channel/promotions/stockouts)
+- Power BI dashboard pages (Forecast, Variance Bridge, Driver Diagnostics)
+- Executive storytelling slide deck
+- SQL mart views for forecasting
+
+### Project 4 (04_ghg_scope_reporting) - 85% Complete
+**What's Done:**
+- 44 SQL files with complete pipeline
+- Full SQL workflow (raw → stg → int → mart → qa)
+- Data generation scripts with intentional defects
+- Scope 1/2/3 emissions modeling
+- Versioned emission factor matching
+- Comprehensive documentation (methodology, lineage, assumptions, assurance checklist)
+- QA controls and exception reporting
+- Reportable vs non-reportable row logic
+
+**What's Needed:**
+- Power BI Sustainability Scorecard dashboard
+- Power BI screenshots for README
+- DAX measures for emissions analysis
+- Final portfolio presentation materials
+
+### Project 5 (05_decision_engine) - 20% Complete
+**What's Done:**
+- 8 SQL files with basic structure
+- README with concept and planned outputs
+- KPI driver tree design concept
+- Upstream dependency definitions
+
+**What's Needed:**
+- Data processing logic consuming Project 1 marts
+- KPI driver tree implementation
+- Revenue variance root-cause analysis
+- Alert logic (low margin, inventory risk)
+- Opportunity identification logic
+- Store/SKU performance flagging
+- Executive decision summary views
+- QA checks for decision outputs
+
+### Project 6 (06_fpna_planning) - 5% Complete
+**What's Done:**
+- Basic directory structure
+- Empty README placeholder
+
+**What's Needed:**
+- Complete project scope definition
+- Data model for FP&A planning
+- Budget vs actual comparison logic
+- Forecast integration
+- Variance analysis for financial planning
+- Rolling forecasts implementation
+- SQL pipeline development
+- Power BI planning dashboards
+- Documentation
+
+**Overall Portfolio: 50% Complete**
+
 ## TOP PRIORITY
-- [ ] align data between projects
-    - [ ] update generators so they pull from shared seed files
+- [X] align data between projects
+    - [X] update generators so they pull from shared seed files
 
 - [ ] Add semantic model test queries to validation folder
 - [ ] refactor customers as entity types: wholesale, retail/direct?
 - [ ] Add: portfolio system map diagram explanation of how all 6 projects connect to each other and how they fit into the overall data architecture (assets/diagrams/portfolio_system_map.png)
----
 
 ## MEDIUM PRIORITY
 - [ ] After projects are built, modify simulated data to be as real as possible
 
----
+## LOW PRIORITY
+- [ ] Add dbt project structure and models
 
 ## Repo Polish
 - [ ] Reduce repo bloat by moving large databases/assets to GitHub Releases
@@ -25,16 +129,58 @@
 - [ ] Add setup script option for `minimal` vs `full` environment install
 - [ ] Implement ripgrep?
 
-## Project 1
-- [ ] lock in “one-command rebuild”
-- [ ] Update `generate_project1_data.py` to use the new product definition file
-- [ ] Update `generate_project1_data.py` to use the new location definition file
-- [ ] Update `generate_project1_data.py` to separate warehouse/retail locations into their own tables from locations table(where wyld sells to)
-- [ ] Should I separate the location generation into its own script?
-- [ ] Update `generate_project1_data.py` to use the new channel definition file / Should I separate the channel generation into its own script?
-- [ ] Make drop-and-create resilient to dependent views: Update `generate_project1_data.py` to not use
-        DROP TABLE ... CASCADE inside the generator (it can blow away staging unexpectedly),
-        `Instead:` your workflow should be “drop stg schema → rebuild raw tables → rebuild stg schema”.
+## Project 1 - COMPLETED MANUFACTURER MODEL INTEGRATION
+- [X] lock in “one-command rebuild”
+- [X] Update data generation script to use manufacturer model
+- [X] Update SQL views for manufacturer model (stg, int, mart layers)
+- [X] Update documentation for manufacturer model
+- [X] Create metric dictionaries (YAML + Markdown)
+- [ ] Final Tableau dashboard screenshots
+- [ ] Executive walkthrough documentation updates
+- [ ] Final testing of manufacturer model pipeline in PostgreSQL
+
+## Project 2
+- [ ] Build Power BI dashboards (3 pages: Data Quality Monitor, Open Exceptions, Reconciliation & Certification)
+- [ ] Power BI screenshots for README
+- [ ] Architecture diagram
+- [ ] Final README polish with "How to run" section
+- [ ] Optional summary deck
+
+## Project 3
+- [ ] Data generation script for forecast/actuals
+- [ ] Forecasting model implementation (Prophet/SARIMA)
+- [ ] Variance decomposition logic (price/volume/mix)
+- [ ] Driver diagnostics (store/SKU/channel/promotions/stockouts)
+- [ ] Power BI dashboard pages (Forecast, Variance Bridge, Driver Diagnostics)
+- [ ] Executive storytelling slide deck
+- [ ] SQL mart views for forecasting
+
+## Project 4
+- [ ] Power BI Sustainability Scorecard dashboard
+- [ ] Power BI screenshots for README
+- [ ] DAX measures for emissions analysis
+- [ ] Final portfolio presentation materials
+
+## Project 5
+- [ ] Data processing logic consuming Project 1 marts
+- [ ] KPI driver tree implementation
+- [ ] Revenue variance root-cause analysis
+- [ ] Alert logic (low margin, inventory risk)
+- [ ] Opportunity identification logic
+- [ ] Store/SKU performance flagging
+- [ ] Executive decision summary views
+- [ ] QA checks for decision outputs
+
+## Project 6
+- [ ] Complete project scope definition
+- [ ] Data model for FP&A planning
+- [ ] Budget vs actual comparison logic
+- [ ] Forecast integration
+- [ ] Variance analysis for financial planning
+- [ ] Rolling forecasts implementation
+- [ ] SQL pipeline development
+- [ ] Power BI planning dashboards
+- [ ] Documentation
 
 ## Portfolio Presentation
 - [ ] Finalize clean root README (what it is, what it proves, how to run)
@@ -66,10 +212,11 @@ Example (replace paths once added):
 ```
 
 ## Results / Insights
+
 - [ ] Add one “Results / Insights” section in root README with 3–5 bullets (what business questions Project 1 answers). Right now you describe architecture and process well, but business outcomes need one more spotlight
 
 ---
----
+
 
 - [ ] Add 01_ops_command_center/docs/metrics_dictionary.md (your repo-level dictionary is solid; now you need the project-level one to match what your root README claims)
 
@@ -81,3 +228,9 @@ Example (replace paths once added):
 
 # Future Iterations
 - [ ] Add dbt project structure and models
+
+1. reconcile existing definition files into one master file?
+2. refactor download links in project1 getting-started.md so they actually download the files from repo/github
+3. Add requirements-forecasting options in bash script
+4. Add requirements-dq options in bash script
+5. give bash setup script option to install bare minimum or full environment
