@@ -1,15 +1,15 @@
 # ============================================================================
 # DATA DIRECTORIES
 # ============================================================================
-data/**
+# data/**
 
-**/data/raw/
-**/data/processed/
-**/data/external/
-**/data/source_extracts/
-**/data/modeled/
-**/data/reference/**/raw/
-**/data/reference/**/processed/
+# **/data/raw/
+# **/data/processed/
+# **/data/external/
+# **/data/source_extracts/
+# **/data/modeled/
+# **/data/reference/**/raw/
+# **/data/reference/**/processed/
 
 # ============================================================================
 # ENVIRONMENT & CONFIGURATION
@@ -35,6 +35,11 @@ credentials/
 *.sqlite3
 *.duckdb
 *.parquet
+
+# ============================================================================
+# JAVA & DRIVERS
+# ============================================================================
+*.jar
 
 # ============================================================================
 # PYTHON

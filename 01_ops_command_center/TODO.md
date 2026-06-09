@@ -2,6 +2,7 @@
 
 - keeps the “audit” items as real checklists
 - put the **execution-critical stuff** (build + QA + runners) in the right places
+- [ ] Implement OLCC License # as Primary Key
 
 ## Phase 1 — Simulate messy source extracts
 
@@ -432,3 +433,88 @@
 ---
 
 If you want it even tighter, the next cleanup would be to add a simple status tag per line (`NOW / NEXT / LATER`)—but this version is already non-redundant and execution-ready.
+
+---
+---
+
+Impressive Business Analyst Portfolio Recommendations:
+
+Data Integration Strategy:
+
+Create a unified view joining OLCC retailers with your manufacturer sales data
+Build a "Market Opportunity Analysis" view showing retailer density vs manufacturer coverage
+Add calculated fields: "Market Saturation Score", "Growth Potential Index", "Competitive Intensity"
+High-Impact Tableau Dashboards:
+
+Oregon Cannabis Market Intelligence Dashboard
+Geographic map showing retailer locations with heat map of density
+County-level analysis: retailers per capita, license types, growth trends
+Market penetration analysis: manufacturers vs retailers by region
+Interactive filters: license type, status, county, city
+Territory Planning & Sales Optimization Dashboard
+Drive-time analysis from manufacturing facilities to retailers
+Optimal territory boundaries based on retailer clusters
+Sales opportunity scoring by geographic area
+Competitor gap analysis
+Market Trends & Forecasting Dashboard
+License issuance trends over time
+Retailer growth velocity by county
+Predictive model for future market expansion
+Seasonal patterns in license applications
+Analytical Techniques to Showcase:
+
+Spatial analysis (distance calculations, clustering)
+Market basket analysis (manufacturer-retailer relationships)
+Geographic information systems (GIS) integration
+Statistical analysis (correlation, regression)
+Data storytelling with actionable insights
+Portfolio Presentation Tips:
+
+Frame as "Market Intelligence Platform" for CPG sales strategy
+Include business questions each dashboard answers
+Show before/after data quality improvements
+Demonstrate data pipeline from raw to insights
+
+Highest Priority
+1. Executive Overview Dashboard
+
+Shows business value at a glance
+Demonstrates KPI design and executive communication
+First thing reviewers will see
+2. Reconciliation & Data Health Dashboard
+
+Proves technical rigor and QA discipline
+Differentiates from basic dashboarding projects
+Shows reconciliation controls and data trust indicators
+High Priority
+3. Sales & Margin Analysis Dashboard
+
+Demonstrates business insight capability
+Shows channel performance and margin analysis
+Illustrates manufacturer model complexity (B2B/Direct/Sell-through)
+4. Architecture/Pipeline Diagram
+
+Shows layered warehouse understanding (Raw → STG → INT → MART)
+Demonstrates data modeling maturity
+Visualizes the end-to-end pipeline
+Medium Priority
+5. Inventory & Operations Dashboard
+
+Shows operational analytics capability
+Demonstrates cross-functional thinking
+6. Labor & Productivity Dashboard
+
+Shows workforce analytics
+Demonstrates KPI calculation complexity
+Nice-to-Have
+7. Before/After Data Quality Comparison
+
+Shows data transformation impact
+Demonstrates cleaning/standardization work
+8. SchemaSpy Schema Diagram
+Shows database design
+Already exists in docs/schema/diagrams/
+
+Recommendation: Start with the Executive Overview and Reconciliation dashboards - these provide the strongest portfolio signal for both business value and technical discipline.
+
+

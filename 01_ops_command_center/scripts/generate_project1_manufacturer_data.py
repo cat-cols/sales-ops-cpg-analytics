@@ -11,8 +11,10 @@ Data Sources:
 - Sell-through data (wholesalers sell to retailers)
 - Direct-to-retailer data (Althea sells directly to large chains)
 - Inventory snapshots (Althea warehouse inventory)
+- OLCC retailer geocoded data (real Oregon cannabis licenses with lat/long)
 
 Based on Oregon cannabis business licenses for realistic business entities.
+Retailers use actual OLCC license data with geocoding for geographic analysis.
 """
 
 import argparse
@@ -26,6 +28,7 @@ import json
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent.parent
 ALTHEA_DATA_DIR = REPO_ROOT / "data/reference/althea_manufacturer"
+OLCC_DATA_DIR = REPO_ROOT / "data/reference/or_licenses/derived"
 OUTPUT_DIR = REPO_ROOT / "01_ops_command_center/data/source_extracts"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -53,8 +56,17 @@ def load_althea_data():
     inventory['snapshot_date'] = pd.to_datetime(inventory['snapshot_date'])
 
     wholesalers = pd.read_csv(ALTHEA_DATA_DIR / "wholesalers_reference.csv")
-    retailers = pd.read_csv(ALTHEA_DATA_DIR / "retailers_reference.csv")
+
+    # Load OLCC retailers with geocoding data
+    olcc_retailers = pd.read_csv(OLCC_DATA_DIR / "olcc_retailer_geocoded.csv")
+    # Filter to ACTIVE licenses only for realism
+    olcc_retailers = olcc_retailers[olcc_retailers['Status'] == 'ACTIVE'].copy()
+
     sku_catalog = pd.read_csv(ALTHEA_DATA_DIR / "althea_sku_catalog.csv")
+
+    # Load sales team reference data
+    sales_team = pd.read_csv(ALTHEA_DATA_DIR / "sales_team_reference.csv")
+    sales_team['hire_date'] = pd.to_datetime(sales_team['hire_date'])
 
     print(f"  - B2B orders: {len(b2b_orders):,}")
     print(f"  - Shipments: {len(shipments):,}")
@@ -62,7 +74,8 @@ def load_althea_data():
     print(f"  - Direct sales: {len(direct_sales):,}")
     print(f"  - Inventory: {len(inventory):,}")
     print(f"  - Wholesalers: {len(wholesalers):,}")
-    print(f"  - Retailers: {len(retailers):,}")
+    print(f"  - OLCC Retailers (ACTIVE): {len(olcc_retailers):,}")
+    print(f"  - Sales Team: {len(sales_team):,}")
     print(f"  - SKUs: {len(sku_catalog):,}")
 
     return {
@@ -72,9 +85,43 @@ def load_althea_data():
         'direct_sales': direct_sales,
         'inventory': inventory,
         'wholesalers': wholesalers,
-        'retailers': retailers,
-        'sku_catalog': sku_catalog
+        'retailers': olcc_retailers,
+        'sku_catalog': sku_catalog,
+        'sales_team': sales_team
     }
+
+def assign_sales_person(county, sales_team):
+    """Assign sales person based on county territory."""
+    county = county.strip() if pd.notna(county) else ''
+    
+    for _, sales_person in sales_team.iterrows():
+        counties_list = [c.strip() for c in sales_person['counties'].split(',')]
+        if county in counties_list:
+            return sales_person['sales_person_id']
+    
+    # Default to first sales person if no match
+    return sales_team.iloc[0]['sales_person_id']
+
+def generate_dim_sales_person(sales_team):
+    """Generate sales person dimension."""
+    print("Generating sales person dimension...")
+    
+    sales_persons = []
+    for _, sp in sales_team.iterrows():
+        sales_persons.append({
+            'sales_person_key': sp['sales_person_id'],
+            'sales_person_name': sp['sales_person_name'],
+            'territory': sp['territory'],
+            'counties': sp['counties'],
+            'role': sp['role'],
+            'hire_date': sp['hire_date']
+        })
+    
+    df = pd.DataFrame(sales_persons)
+    df['sales_person_id'] = range(1, len(df) + 1)
+    
+    print(f"  - Generated {len(df)} sales persons")
+    return df
 
 def generate_dim_location(wholesalers, retailers):
     """Generate location dimension from business entities."""
@@ -82,7 +129,7 @@ def generate_dim_location(wholesalers, retailers):
 
     locations = []
     
-    # Add wholesalers
+    # Add wholesalers (from althea_manufacturer reference)
     for _, wholesaler in wholesalers.iterrows():
         locations.append({
             'location_key': wholesaler['License Number'],
@@ -90,24 +137,34 @@ def generate_dim_location(wholesalers, retailers):
             'location_type': 'Wholesaler',
             'county': wholesaler['County'],
             'state': 'OR',
-            'preferred_channel': 'Wholesale'
+            'preferred_channel': 'Wholesale',
+            'street_address': wholesaler.get('PhysicalAddress', ''),
+            'city': '',
+            'zip_code': '',
+            'latitude': None,
+            'longitude': None
         })
     
-    # Add retailers
+    # Add retailers (from OLCC geocoded data)
     for _, retailer in retailers.iterrows():
         locations.append({
             'location_key': retailer['License Number'],
             'location_name': retailer['Business Name'],
             'location_type': 'Retailer',
             'county': retailer['County'],
-            'state': 'OR',
-            'preferred_channel': 'Retail'
+            'state': retailer['state'],
+            'preferred_channel': 'Retail',
+            'street_address': retailer['street_address'],
+            'city': retailer['city'],
+            'zip_code': retailer['zip_code'],
+            'latitude': retailer['latitude'],
+            'longitude': retailer['longitude']
         })
     
     df = pd.DataFrame(locations)
     df['location_id'] = range(1, len(df) + 1)
     
-    print(f"  - Generated {len(df)} locations")
+    print(f"  - Generated {len(df)} locations ({len(df[df['location_type'] == 'Retailer'])} retailers with geocoding)")
     return df
 
 def generate_dim_product(sku_catalog):
@@ -187,7 +244,7 @@ def add_data_quality_issues(df, issue_rate=0.01):
     
     return df
 
-def generate_source_extracts(althea_data, dim_location, dim_product, dim_channel):
+def generate_source_extracts(althea_data, dim_location, dim_product, dim_channel, sales_team):
     """Generate source extracts with data quality issues."""
     print("Generating source extracts...")
 
@@ -209,6 +266,11 @@ def generate_source_extracts(althea_data, dim_location, dim_product, dim_channel
         'net_amount': 'net_sales'
     })
     b2b_orders['channel'] = 'Wholesale'
+    # Assign sales person based on wholesaler county (need to lookup county from wholesalers)
+    b2b_orders = b2b_orders.merge(althea_data['wholesalers'][['License Number', 'County']], 
+                                   left_on='store_code', right_on='License Number', how='left')
+    b2b_orders['sales_person_id'] = b2b_orders['County'].apply(lambda x: assign_sales_person(x, sales_team))
+    b2b_orders = b2b_orders.drop(columns=['License Number', 'County'])
     b2b_orders = add_data_quality_issues(b2b_orders, issue_rate=0.008)
     b2b_orders.to_csv(sales_dir / "b2b_orders_extract.csv", index=False)
     
@@ -224,6 +286,11 @@ def generate_source_extracts(althea_data, dim_location, dim_product, dim_channel
         'net_amount': 'net_sales'
     })
     direct_sales['channel'] = 'Direct'
+    # Assign sales person based on retailer county (from OLCC data)
+    direct_sales = direct_sales.merge(althea_data['retailers'][['License Number', 'County']], 
+                                     left_on='store_code', right_on='License Number', how='left')
+    direct_sales['sales_person_id'] = direct_sales['County'].apply(lambda x: assign_sales_person(x, sales_team))
+    direct_sales = direct_sales.drop(columns=['License Number', 'County'])
     direct_sales = add_data_quality_issues(direct_sales, issue_rate=0.008)
     direct_sales.to_csv(sales_dir / "direct_sales_extract.csv", index=False)
     
@@ -242,6 +309,11 @@ def generate_source_extracts(althea_data, dim_location, dim_product, dim_channel
         'gross_amount': 'gross_sales'
     })
     sell_through['channel'] = 'Distributor'
+    # Assign sales person based on retailer county (from OLCC data)
+    sell_through = sell_through.merge(althea_data['retailers'][['License Number', 'County']], 
+                                      left_on='store_code', right_on='License Number', how='left')
+    sell_through['sales_person_id'] = sell_through['County'].apply(lambda x: assign_sales_person(x, sales_team))
+    sell_through = sell_through.drop(columns=['License Number', 'County'])
     sell_through = add_data_quality_issues(sell_through, issue_rate=0.008)
     sell_through.to_csv(sales_dir / "sell_through_extract.csv", index=False)
     
@@ -269,7 +341,7 @@ def generate_source_extracts(althea_data, dim_location, dim_product, dim_channel
     
     print("  - Source extracts generated")
 
-def generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel, dim_date):
+def generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel, dim_date, dim_sales_person, sales_team):
     """Generate modeled truth tables."""
     print("Generating modeled tables...")
     
@@ -281,6 +353,7 @@ def generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel,
     dim_product.to_csv(modeled_dir / "dim_product.csv", index=False)
     dim_channel.to_csv(modeled_dir / "dim_channel.csv", index=False)
     dim_date.to_csv(modeled_dir / "dim_date.csv", index=False)
+    dim_sales_person.to_csv(modeled_dir / "dim_sales_person.csv", index=False)
     
     # Generate fact_sales from manufacturer data
     print("  - Generating fact_sales...")
@@ -289,11 +362,18 @@ def generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel,
     # B2B orders
     for _, row in althea_data['b2b_orders'].iterrows():
         order_date = pd.to_datetime(row['order_date'])
+        # Assign sales person based on wholesaler county
+        wholesaler_county = althea_data['wholesalers'].loc[
+            althea_data['wholesalers']['License Number'] == row['wholesaler_license'], 'County'
+        ].values[0] if len(althea_data['wholesalers'][althea_data['wholesalers']['License Number'] == row['wholesaler_license']]) > 0 else ''
+        sales_person_id = assign_sales_person(wholesaler_county, sales_team)
+        
         fact_sales_rows.append({
             'date_key': order_date.strftime('%Y%m%d'),
             'product_key': row['sku'],
             'location_key': row['wholesaler_license'],
             'channel_key': 1,  # Wholesale
+            'sales_person_key': sales_person_id,
             'units_sold': row['quantity_packs'],
             'unit_list_price': row['unit_price'],
             'unit_net_price': row['unit_price'] * (1 - row['discount_percent']),
@@ -309,11 +389,18 @@ def generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel,
     # Direct sales
     for _, row in althea_data['direct_sales'].iterrows():
         sale_date = pd.to_datetime(row['sale_date'])
+        # Assign sales person based on retailer county
+        retailer_county = althea_data['retailers'].loc[
+            althea_data['retailers']['License Number'] == row['retailer_license'], 'County'
+        ].values[0] if len(althea_data['retailers'][althea_data['retailers']['License Number'] == row['retailer_license']]) > 0 else ''
+        sales_person_id = assign_sales_person(retailer_county, sales_team)
+        
         fact_sales_rows.append({
             'date_key': sale_date.strftime('%Y%m%d'),
             'product_key': row['sku'],
             'location_key': row['retailer_license'],
             'channel_key': 2,  # Direct
+            'sales_person_key': sales_person_id,
             'units_sold': row['quantity_packs'],
             'unit_list_price': row['unit_price'],
             'unit_net_price': row['unit_price'] * (1 - row['discount_percent']),
@@ -329,11 +416,18 @@ def generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel,
     # Sell-through (distributor to retailer)
     for _, row in althea_data['sell_through'].iterrows():
         sale_date = pd.to_datetime(row['sale_date'])
+        # Assign sales person based on retailer county
+        retailer_county = althea_data['retailers'].loc[
+            althea_data['retailers']['License Number'] == row['retailer_license'], 'County'
+        ].values[0] if len(althea_data['retailers'][althea_data['retailers']['License Number'] == row['retailer_license']]) > 0 else ''
+        sales_person_id = assign_sales_person(retailer_county, sales_team)
+        
         fact_sales_rows.append({
             'date_key': sale_date.strftime('%Y%m%d'),
             'product_key': row['sku'],
             'location_key': row['retailer_license'],
             'channel_key': 3,  # Distributor
+            'sales_person_key': sales_person_id,
             'units_sold': row['quantity_packs'],
             'unit_list_price': row['retail_price'],
             'unit_net_price': row['wholesale_price'],
@@ -374,10 +468,15 @@ def generate_manifest(althea_data):
     
     manifest = {
         'generated_at': datetime.now().isoformat(),
-        'data_source': 'Althea Manufacturer Model',
+        'data_source': 'Althea Manufacturer Model with OLCC Retailer Data',
         'date_range': {
             'start': START_DATE.strftime('%Y-%m-%d'),
             'end': END_DATE.strftime('%Y-%m-%d')
+        },
+        'data_sources': {
+            'wholesalers': 'althea_manufacturer reference data',
+            'retailers': 'OLCC geocoded retailer data (ACTIVE licenses only)',
+            'geocoding': 'Included for retailers (latitude, longitude)'
         },
         'row_counts': {
             'b2b_orders': len(althea_data['b2b_orders']),
@@ -387,6 +486,7 @@ def generate_manifest(althea_data):
             'inventory': len(althea_data['inventory']),
             'wholesalers': len(althea_data['wholesalers']),
             'retailers': len(althea_data['retailers']),
+            'sales_team': len(althea_data['sales_team']),
             'skus': len(althea_data['sku_catalog'])
         },
         'revenue': {
@@ -417,12 +517,13 @@ def main():
     dim_product = generate_dim_product(althea_data['sku_catalog'])
     dim_channel = generate_dim_channel()
     dim_date = generate_dim_date(START_DATE, END_DATE)
+    dim_sales_person = generate_dim_sales_person(althea_data['sales_team'])
     
     # Generate source extracts
-    generate_source_extracts(althea_data, dim_location, dim_product, dim_channel)
+    generate_source_extracts(althea_data, dim_location, dim_product, dim_channel, althea_data['sales_team'])
     
     # Generate modeled tables
-    generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel, dim_date)
+    generate_modeled_tables(althea_data, dim_location, dim_product, dim_channel, dim_date, dim_sales_person, althea_data['sales_team'])
     
     # Generate manifest
     generate_manifest(althea_data)
