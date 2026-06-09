@@ -1,6 +1,6 @@
 # Project 1 — Althea Ops Command Center
 
-An end-to-end analytics engineering case study that simulates messy cross-functional source extracts, standardizes them in PostgreSQL, reconciles them to finance, and prepares a reporting-ready mart layer for Power BI.
+An end-to-end analytics engineering case study that simulates messy cross-functional source extracts for a cannabis CPG manufacturer, standardizes them in PostgreSQL, reconciles them to finance, and prepares a reporting-ready mart layer for Tableau dashboards.
 
 ## What this project proves
 
@@ -10,9 +10,72 @@ This project is designed to show that I can:
 - standardize and model that data into clean, typed, reliable tables
 - reconcile modeled outputs back to finance-facing totals
 - build QA controls that hard-fail when key contracts are broken
-- prepare a semantic-model-ready foundation for executive reporting
+- prepare a data foundation for executive reporting dashboards
+- translate data into actionable business insights and recommendations
 
 This is the flagship project in the repo and the closest match to a Business Analyst / Analytics Engineering workflow in a fast-moving consumer business.
+
+## Business Model
+
+**Manufacturer Model (Updated)**
+- Althea is a cannabis CPG manufacturer that sells gummies
+- Sales channels:
+  - B2B: Manufacturer sells to wholesalers (distributors)
+  - Direct: Manufacturer sells directly to large retail chains
+  - Sell-through: Wholesalers sell to retailers (for market visibility)
+- Uses real Oregon cannabis business license data for 258 wholesalers and 795 retailers
+- 12 Althea SKUs with realistic pricing and volume patterns
+
+## Project Structure
+
+```
+01_ops_command_center/
+├── sql/                    # PostgreSQL data warehouse implementation
+│   ├── stg/               # Staging layer (cleaning views)
+│   ├── int/               # Integration layer (conformed views)
+│   ├── mart/              # Mart layer (business-ready views)
+│   └── qa/                # Quality assurance views
+├── data/                   # Source data
+│   ├── sample/            # CSV sample data (source for PostgreSQL)
+│   ├── seeds/             # Seed data for generators
+│   └── source_extracts/   # Raw source extracts
+├── docs/                   # Documentation
+│   ├── postgresql_implementation_guide.md
+│   ├── postgresql_implementation_visualization.md
+│   ├── column_transformation_diagram.md
+│   ├── lineage_graph.md
+│   └── schema_*/          # SchemaSpy documentation
+├── tableau/                # Tableau dashboards and implementation guides
+├── powerbi/ a thea ops     # Power BI semantic model planning (for reference)
+├── legacy/                 # Legacy CSV/Pyt
+- Data model: Manufacturer model (B2B + Direct + Sell-through)hon implementation
+│   ├── scripts/           # Python data generators
+│   ├── reports/           # CSV-based reports
+│   └── standardized/      # CSV-based standardized data
+└── notes/                  # Development notes
+```
+
+## Implementation Approach
+
+**Primary: PostgreSQL Data Warehouse**
+- Database: `wyld_chyld`
+- Layers: raw → staging → integration → mart
+- 79 views across all layers
+- SchemaSpy documentation for visualization
+
+**BI Layer: Tableau Dashboards**
+- Cross-platform compatibility (works on Mac)
+- Executive overview with KPI cards and trend analysis
+- Detailed analysis dashboards (sales, inventory, labor)
+- Reconciliation and data health monitoring
+- Published to Tableau Public for portfolio demonstration
+- Comprehensive lineage tracking
+
+**Legacy: CSV/Python Implementation**
+- Preserved in `legacy/` folder
+- Shows evolution of technical thinking
+- Demonstrates ability to work with different constraints
+- See `legacy/README.md` for details
 
 ## Business scenario
 
@@ -88,7 +151,7 @@ SQL checks validate grain, null keys, uniqueness, reconciliation status, and mar
 Project 1 now runs end to end with the SQL QA suite passing.
 
 ### Next layer
-The next major step is the Power BI semantic model and report-page architecture built on top of the current mart layer.
+The next major step is the Tableau dashboard implementation built on top of the current mart layer. See `tableau/IMPLEMENTATION_GUIDE.md` for detailed dashboard planning and setup instructions.
 
 ## Repository structure
 
@@ -111,6 +174,13 @@ The next major step is the Power BI semantic model and report-page architecture 
 * `sql/int/` — conformance and truth-selection logic
 * `sql/mart/` — facts, dimensions, KPIs, controls, recon
 * `sql/_qa/` — hard-fail QA scripts
+
+### Key Tableau folders
+
+* `tableau/` — Tableau dashboard implementation
+  * `IMPLEMENTATION_GUIDE.md` — Dashboard planning and architecture
+  * `DATA_SOURCE_GUIDE.md` — PostgreSQL connection setup
+  * `CALCULATED_FIELDS.md` — Calculated fields and LOD expressions reference
 
 ## Core modeled entities
 
@@ -210,6 +280,7 @@ The QA layer is designed to hard-fail on meaningful model contract issues rather
 
 ## How to run
 
+### SQL Pipeline
 From the repo root:
 
 ```bash
@@ -219,6 +290,14 @@ psql "$P1_PG_OPS" -v ON_ERROR_STOP=1 -f 01_ops_command_center/sql/int/_build_int
 psql "$P1_PG_OPS" -v ON_ERROR_STOP=1 -f 01_ops_command_center/sql/mart/_build_mart.sql && \
 psql "$P1_PG_OPS" -v ON_ERROR_STOP=1 -f 01_ops_command_center/sql/_qa/_run_qa.sql
 ```
+
+### Tableau Dashboard
+After building the SQL mart layer:
+
+1. Install Tableau Desktop (trial available)
+2. Follow `tableau/DATA_SOURCE_GUIDE.md` to connect to PostgreSQL
+3. Follow `tableau/IMPLEMENTATION_GUIDE.md` to build dashboards
+4. See `tableau/CALCULATED_FIELDS.md` for calculation reference
 
 ## What the pipeline does
 
@@ -240,18 +319,33 @@ The `docs/` folder is intended to hold project-facing documentation such as:
 * executive walkthrough
 * semantic model planning docs
 
-## Power BI plan
+## BI Implementation
 
-The SQL foundation is complete enough to support a Power BI semantic model as the next project layer.
+### Tableau (Primary Implementation)
+**Status:** Documentation complete, implementation in progress
 
-Planned deliverables for the reporting layer:
+The SQL mart layer is complete and ready for Tableau dashboard development. Tableau provides cross-platform compatibility (works on Mac) and is the primary BI implementation for this portfolio.
 
-* semantic model design
-* relationship map
-* DAX measure catalog
-* report page architecture
-* narrative tooltip logic
-* executive overview and reconciliation pages
+**Documentation:**
+- `tableau/IMPLEMENTATION_GUIDE.md` — Dashboard planning and architecture
+- `tableau/DATA_SOURCE_GUIDE.md` — PostgreSQL connection setup
+- `tableau/CALCULATED_FIELDS.md` — Calculated fields and LOD expressions
+
+**Planned Dashboards:**
+- Executive Overview (KPI cards, trends, performance metrics)
+- Sales & Margin Analysis (channel performance, discount impact, SKU analysis)
+- Inventory & Operations (in-stock rate, days of supply, stockout risk)
+- Labor & Productivity (labor hours, sales per labor hour, staffing efficiency)
+- Reconciliation & Data Health (variance analysis, data quality scorecard)
+
+### Power BI (Reference Implementation)
+**Status:** Semantic model planning documentation retained
+
+Power BI semantic model planning documentation is retained for reference to demonstrate platform versatility and understanding of Microsoft BI tools. This shows ability to work with multiple BI platforms.
+
+**Documentation:**
+- `powerbi/IMPLEMENTATION_GUIDE.md` — Power BI semantic model planning
+- `powerbi/semantic_model/` — DAX measure catalog and relationship planning
 
 ## Why this project matters
 
@@ -270,16 +364,21 @@ That combination is what turns raw extracts into decision-support data.
 
 ## Tech stack
 
-* PostgreSQL
-* SQL
-* Python
-* pandas
-* NumPy
-* openpyxl
-* psycopg
-* Excel / CSV source simulation
-* Power BI planning artifacts
+* PostgreSQL — Data warehouse and mart layer
+* SQL — Data modeling and transformation
+* Python — Data generation and ETL (pandas, NumPy, openpyxl, psycopg)
+* Tableau — BI dashboards and visualization
+* Power BI — Semantic model planning (reference implementation)
+* Excel / CSV — Source simulation and data exchange
 
 ## Portfolio note
 
 All data in this project is synthetic and intended to simulate realistic business workflows without using proprietary company data.
+
+## Business Value Demonstration
+
+This project goes beyond technical implementation to demonstrate actual business value creation:
+
+**Business Analysis Examples:** See `docs/business_analysis_examples.md` for detailed store performance analysis, variance explanations, and actionable recommendations with projected financial impact ($245K monthly improvement identified).
+
+**Executive Summary:** See `docs/business_value_summary.md` for portfolio-level business value demonstration and strategic insights.

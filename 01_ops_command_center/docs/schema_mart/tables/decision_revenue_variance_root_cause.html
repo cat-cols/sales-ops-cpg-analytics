@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>decision_revenue_variance_root_cause - wyld_chyld Database</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="../bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="../bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="../bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="../bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="../bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='../fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='../fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="../bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="../schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="../bower/html5shiv/html5shiv.min.js"></script>
+        <script src="../bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="../index.html" class="navbar-brand"><b>wyld_chyld</b> Database</a>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="../index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="../columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="../constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="../relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="../orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="../anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="../routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>decision_revenue_variance_root_cause</h1><p><span id="recordNumber">0</span> rows</p><br />
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            <h3 id="Columns" class="box-title">Columns</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="standard_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th title='Are nulls allowed?'>Nulls</th>
+                                    <th title='Is column automatically updated?'>Auto</th>
+                                    <th title='Default value'>Default</th>
+                                    <th title='Columns in tables that reference this column'>Children</th>
+                                    <th title='Columns in tables that are referenced by this column'>Parents</th>
+                                    <th title='Comments' class="toggle"><span>Comments</span></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td><span id="store_code">store_code</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="sku">sku</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="channel">channel</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="current_units_sold">current_units_sold</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="prior_units_sold">prior_units_sold</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="current_net_sales">current_net_sales</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="prior_net_sales">prior_net_sales</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="net_sales_variance">net_sales_variance</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="net_sales_variance_pct">net_sales_variance_pct</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="current_avg_net_price">current_avg_net_price</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="prior_avg_net_price">prior_avg_net_price</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="estimated_volume_effect">estimated_volume_effect</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="estimated_price_effect">estimated_price_effect</span></td>
+                                    <td>numeric</td>
+                                    <td>0</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="primary_revenue_driver">primary_revenue_driver</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="recommended_action">recommended_action</span></td>
+                                    <td>text</td>
+                                    <td>2147483647</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="variance_impact_rank">variance_impact_rank</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-code-o"></i>
+                            <h3 id="ViewDefinition" class="box-title">View Definition</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">WITH max_sales_date AS (&#10;         SELECT max(fact_sales_daily.sale_date) AS max_sale_date&#10;           FROM mart.fact_sales_daily&#10;        ), sales_window AS (&#10;         SELECT s.sale_date,&#10;            s.store_code,&#10;            s.sku,&#10;            s.channel,&#10;            COALESCE(s.qty, (0)::numeric) AS units_sold,&#10;            COALESCE(s.net_sales, (0)::numeric) AS net_sales&#10;           FROM (mart.fact_sales_daily s&#10;             CROSS JOIN max_sales_date m)&#10;          WHERE ((s.sale_date &gt;= (m.max_sale_date - &#39;55 days&#39;::interval)) AND (s.sale_date &lt;= m.max_sale_date))&#10;        ), periodized_sales AS (&#10;         SELECT sales_window.sale_date,&#10;            sales_window.store_code,&#10;            sales_window.sku,&#10;            sales_window.channel,&#10;            sales_window.units_sold,&#10;            sales_window.net_sales,&#10;                CASE&#10;                    WHEN (sales_window.sale_date &gt;= ( SELECT (max_sales_date.max_sale_date - &#39;27 days&#39;::interval)&#10;                       FROM max_sales_date)) THEN &#39;current_28_days&#39;::text&#10;                    WHEN ((sales_window.sale_date &gt;= ( SELECT (max_sales_date.max_sale_date - &#39;55 days&#39;::interval)&#10;                       FROM max_sales_date)) AND (sales_window.sale_date &lt; ( SELECT (max_sales_date.max_sale_date - &#39;27 days&#39;::interval)&#10;                       FROM max_sales_date))) THEN &#39;prior_28_days&#39;::text&#10;                    ELSE &#39;outside_window&#39;::text&#10;                END AS comparison_period&#10;           FROM sales_window&#10;        ), period_rollup AS (&#10;         SELECT periodized_sales.comparison_period,&#10;            periodized_sales.store_code,&#10;            periodized_sales.sku,&#10;            periodized_sales.channel,&#10;            sum(periodized_sales.units_sold) AS units_sold,&#10;            sum(periodized_sales.net_sales) AS net_sales&#10;           FROM periodized_sales&#10;          WHERE (periodized_sales.comparison_period = ANY (ARRAY[&#39;current_28_days&#39;::text, &#39;prior_28_days&#39;::text]))&#10;          GROUP BY periodized_sales.comparison_period, periodized_sales.store_code, periodized_sales.sku, periodized_sales.channel&#10;        ), comparison_pivot AS (&#10;         SELECT period_rollup.store_code,&#10;            period_rollup.sku,&#10;            period_rollup.channel,&#10;            sum(&#10;                CASE&#10;                    WHEN (period_rollup.comparison_period = &#39;current_28_days&#39;::text) THEN period_rollup.units_sold&#10;                    ELSE (0)::numeric&#10;                END) AS current_units_sold,&#10;            sum(&#10;                CASE&#10;                    WHEN (period_rollup.comparison_period = &#39;prior_28_days&#39;::text) THEN period_rollup.units_sold&#10;                    ELSE (0)::numeric&#10;                END) AS prior_units_sold,&#10;            sum(&#10;                CASE&#10;                    WHEN (period_rollup.comparison_period = &#39;current_28_days&#39;::text) THEN period_rollup.net_sales&#10;                    ELSE (0)::numeric&#10;                END) AS current_net_sales,&#10;            sum(&#10;                CASE&#10;                    WHEN (period_rollup.comparison_period = &#39;prior_28_days&#39;::text) THEN period_rollup.net_sales&#10;                    ELSE (0)::numeric&#10;                END) AS prior_net_sales&#10;           FROM period_rollup&#10;          GROUP BY period_rollup.store_code, period_rollup.sku, period_rollup.channel&#10;        ), variance_calc AS (&#10;         SELECT comparison_pivot.store_code,&#10;            comparison_pivot.sku,&#10;            comparison_pivot.channel,&#10;            comparison_pivot.current_units_sold,&#10;            comparison_pivot.prior_units_sold,&#10;            comparison_pivot.current_net_sales,&#10;            comparison_pivot.prior_net_sales,&#10;            (comparison_pivot.current_net_sales - comparison_pivot.prior_net_sales) AS net_sales_variance,&#10;                CASE&#10;                    WHEN (comparison_pivot.prior_net_sales = (0)::numeric) THEN NULL::numeric&#10;                    ELSE ((comparison_pivot.current_net_sales - comparison_pivot.prior_net_sales) / NULLIF(comparison_pivot.prior_net_sales, (0)::numeric))&#10;                END AS net_sales_variance_pct,&#10;                CASE&#10;                    WHEN (comparison_pivot.current_units_sold = (0)::numeric) THEN NULL::numeric&#10;                    ELSE (comparison_pivot.current_net_sales / NULLIF(comparison_pivot.current_units_sold, (0)::numeric))&#10;                END AS current_avg_net_price,&#10;                CASE&#10;                    WHEN (comparison_pivot.prior_units_sold = (0)::numeric) THEN NULL::numeric&#10;                    ELSE (comparison_pivot.prior_net_sales / NULLIF(comparison_pivot.prior_units_sold, (0)::numeric))&#10;                END AS prior_avg_net_price&#10;           FROM comparison_pivot&#10;        ), driver_calc AS (&#10;         SELECT variance_calc.store_code,&#10;            variance_calc.sku,&#10;            variance_calc.channel,&#10;            variance_calc.current_units_sold,&#10;            variance_calc.prior_units_sold,&#10;            variance_calc.current_net_sales,&#10;            variance_calc.prior_net_sales,&#10;            variance_calc.net_sales_variance,&#10;            variance_calc.net_sales_variance_pct,&#10;            variance_calc.current_avg_net_price,&#10;            variance_calc.prior_avg_net_price,&#10;            ((variance_calc.current_units_sold - variance_calc.prior_units_sold) * COALESCE(variance_calc.prior_avg_net_price, variance_calc.current_avg_net_price, (0)::numeric)) AS estimated_volume_effect,&#10;            ((COALESCE(variance_calc.current_avg_net_price, (0)::numeric) - COALESCE(variance_calc.prior_avg_net_price, (0)::numeric)) * variance_calc.current_units_sold) AS estimated_price_effect&#10;           FROM variance_calc&#10;        ), labeled AS (&#10;         SELECT driver_calc.store_code,&#10;            driver_calc.sku,&#10;            driver_calc.channel,&#10;            driver_calc.current_units_sold,&#10;            driver_calc.prior_units_sold,&#10;            driver_calc.current_net_sales,&#10;            driver_calc.prior_net_sales,&#10;            driver_calc.net_sales_variance,&#10;            driver_calc.net_sales_variance_pct,&#10;            driver_calc.current_avg_net_price,&#10;            driver_calc.prior_avg_net_price,&#10;            driver_calc.estimated_volume_effect,&#10;            driver_calc.estimated_price_effect,&#10;                CASE&#10;                    WHEN ((driver_calc.prior_net_sales = (0)::numeric) AND (driver_calc.current_net_sales &gt; (0)::numeric)) THEN &#39;New / growing business&#39;::text&#10;                    WHEN ((driver_calc.prior_net_sales &gt; (0)::numeric) AND (driver_calc.current_net_sales = (0)::numeric)) THEN &#39;Lost / declining business&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &lt; (0)::numeric) AND (abs(driver_calc.estimated_volume_effect) &gt;= abs(driver_calc.estimated_price_effect))) THEN &#39;Volume-driven decline&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &lt; (0)::numeric) AND (abs(driver_calc.estimated_price_effect) &gt; abs(driver_calc.estimated_volume_effect))) THEN &#39;Price-driven decline&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &gt; (0)::numeric) AND (abs(driver_calc.estimated_volume_effect) &gt;= abs(driver_calc.estimated_price_effect))) THEN &#39;Volume-driven growth&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &gt; (0)::numeric) AND (abs(driver_calc.estimated_price_effect) &gt; abs(driver_calc.estimated_volume_effect))) THEN &#39;Price-driven growth&#39;::text&#10;                    ELSE &#39;Stable / low movement&#39;::text&#10;                END AS primary_revenue_driver,&#10;                CASE&#10;                    WHEN ((driver_calc.prior_net_sales = (0)::numeric) AND (driver_calc.current_net_sales &gt; (0)::numeric)) THEN &#39;Review what changed and consider expanding distribution or support.&#39;::text&#10;                    WHEN ((driver_calc.prior_net_sales &gt; (0)::numeric) AND (driver_calc.current_net_sales = (0)::numeric)) THEN &#39;Investigate lost sales, distribution gaps, account issues, or discontinued demand.&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &lt; (0)::numeric) AND (abs(driver_calc.estimated_volume_effect) &gt;= abs(driver_calc.estimated_price_effect))) THEN &#39;Investigate demand decline, inventory availability, account performance, or lost distribution.&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &lt; (0)::numeric) AND (abs(driver_calc.estimated_price_effect) &gt; abs(driver_calc.estimated_volume_effect))) THEN &#39;Review pricing, discounting, promo activity, or channel price pressure.&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &gt; (0)::numeric) AND (abs(driver_calc.estimated_volume_effect) &gt;= abs(driver_calc.estimated_price_effect))) THEN &#39;Protect supply and consider expanding high-performing store/SKU/channel combinations.&#39;::text&#10;                    WHEN ((driver_calc.net_sales_variance &gt; (0)::numeric) AND (abs(driver_calc.estimated_price_effect) &gt; abs(driver_calc.estimated_volume_effect))) THEN &#39;Review whether price improvement is sustainable without hurting demand.&#39;::text&#10;                    ELSE &#39;Monitor; no immediate action required.&#39;::text&#10;                END AS recommended_action&#10;           FROM driver_calc&#10;        )&#10; SELECT labeled.store_code,&#10;    labeled.sku,&#10;    labeled.channel,&#10;    labeled.current_units_sold,&#10;    labeled.prior_units_sold,&#10;    labeled.current_net_sales,&#10;    labeled.prior_net_sales,&#10;    labeled.net_sales_variance,&#10;    labeled.net_sales_variance_pct,&#10;    labeled.current_avg_net_price,&#10;    labeled.prior_avg_net_price,&#10;    labeled.estimated_volume_effect,&#10;    labeled.estimated_price_effect,&#10;    labeled.primary_revenue_driver,&#10;    labeled.recommended_action,&#10;    dense_rank() OVER (ORDER BY (abs(labeled.net_sales_variance)) DESC) AS variance_impact_rank&#10;   FROM labeled;</textarea>
+                            <div style="padding-top: 5px;"><hr></div>
+                            <div class="box box-solid">
+                                <div class="box-header with-border">
+                                    <i class="fa fa-puzzle-piece"></i>
+                                    <h3 class="box-title">Possibly Referenced Tables/Views</h3>
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body">
+                                    <ul class="list-unstyled">
+                                        <li><a href="fact_sales_daily.html">fact_sales_daily</a></li>
+                                    </ul>
+                                </div><!-- /.box-body -->
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: true
+                    }
+                </script>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.1.0</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="../bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="../bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="../bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="../bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="../bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="../bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="../bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="../bower/pdfmake/pdfmake.min.js"></script>
+        <script src="../bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="../bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="../bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="../bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="../bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="../bower/codemirror/codemirror.js"></script>
+        <script src="../bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="../bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="table.js"></script>
+        <script src="../schemaSpy.js"></script>
+    </body>
+</html>

@@ -27,17 +27,18 @@ Before defining metrics, here are the main grains (levels of detail) in this pro
 ### `fact_sales` grain
 One row per:
 - `date_key`
-- `product_key`
-- `location_key`
-- `channel_key`
+- `product_key` (Althea SKU)
+- `location_key` (Oregon business license: wholesaler or retailer)
+- `channel_key` (B2B, Direct, or Sell-through)
+- `sales_source` (b2b, direct, or sell_through)
 
-This is a **daily product-location-channel sales fact row** (synthetic generated row, not a raw transaction line).
+This is a **daily product-location-channel sales fact row** from manufacturer model data.
 
 ### `fact_inventory` grain
 One row per:
 - `date_key`
-- `product_key`
-- `location_key`
+- `product_key` (Althea SKU)
+- `location_key` (ALTHEA_WAREHOUSE)
 
 ### `fact_labor` grain
 One row per:
@@ -45,10 +46,11 @@ One row per:
 - `location_key`
 - `employee_group_key`
 
-### `finance_actuals_summary` source extract grain
-One row per:
-- `month_start`
-- `metric_name`
+### Data Sources
+- **B2B Orders**: Manufacturer to wholesalers (258 Oregon wholesalers)
+- **Direct Sales**: Manufacturer to retailers (795 Oregon retailers)
+- **Sell-through**: Wholesalers to retailers (market visibility)
+- **Business Entities**: Real Oregon cannabis business licenses
 
 ---
 
@@ -72,27 +74,33 @@ This means a row’s **effective unit list price** may be lower than the product
 ## Sales Metrics (`fact_sales`)
 
 ### 1) `units_sold`
-- **Definition:** Number of units sold for the row grain (daily x product x location x channel).
+- **Definition:** Number of units (packs) sold for the row grain (daily x product x location x channel).
 - **Type:** Integer
-- **Unit:** Count
+- **Unit:** Count (packs, not individual gummies)
 - **Grain:** `fact_sales`
-- **Source inputs:** generated demand logic
-- **Formula:** Generated via Poisson demand simulation (`units = max(1, poisson(...))`)
-- **Notes:** Foundation for most revenue metrics.
+- **Source inputs:** Althea manufacturer data (B2B orders, Direct sales, Sell-through)
+- **Formula:** `quantity_packs` from source data
+- **Notes:** Measured in packs per manufacturer data model. Foundation for most revenue metrics.
+- **Manufacturer context:** Different by channel:
+  - B2B: Packs shipped to wholesalers
+  - Direct: Packs shipped to retailers
+  - Sell-through: Packs sold by wholesalers to retailers
 
 ---
 
-### 2) `unit_list_price` *(recommended new column)*
-- **Definition:** Effective pre-discount selling price per unit for the row, after channel pricing and price noise.
+### 2) `unit_list_price`
+- **Definition:** Pre-discount selling price per pack for the row.
 - **Type:** Decimal
-- **Unit:** USD per unit
+- **Unit:** USD per pack
 - **Grain:** `fact_sales`
-- **Source inputs:** `dim_product.base_list_price`, channel factor, price noise
+- **Source inputs:** Althea SKU catalog, channel-specific pricing
 - **Formula (row-level):**
-  - `unit_list_price = base_list_price_with_noise * channel_price_factor`
+  - B2B: `unit_price` from manufacturer data
+  - Direct: `unit_price` from manufacturer data
+  - Sell-through: `retail_price` (wholesale markup applied)
 - **Notes:**
-  - This should represent the actual per-unit gross price basis used in the row.
-  - If you also want the pre-channel product list price, create a separate metric like `unit_msrp_price`.
+  - Represents the list price before any discounts
+  - Varies by channel due to manufacturer vs retail pricing
 
 ---
 
@@ -131,10 +139,10 @@ This means a row’s **effective unit list price** may be lower than the product
 - **Grain:** `fact_sales`
 - **Source inputs:** `units_sold`, `unit_list_price`
 - **Formula (row-level):**
-  - `gross_sales_amount = units_sold * unit_list_price`
-- **Equivalent implementation note:**
-  - In the current script, this is built from `units * list_price` and then channel-adjusted.
-  - If you add `unit_list_price`, this becomes simpler and more explicit.
+  - `gross_sales_amount = quantity_packs * unit_list_price`
+- **Manufacturer context:**
+  - B2B/Direct: Manufacturer gross revenue
+  - Sell-through: Retail gross revenue (wholesale perspective)
 
 ---
 
@@ -146,6 +154,9 @@ This means a row’s **effective unit list price** may be lower than the product
 - **Source inputs:** `gross_sales_amount`, `net_sales_amount`
 - **Formula (row-level):**
   - `discount_amount = gross_sales_amount - net_sales_amount`
+- **Manufacturer context:**
+  - B2B/Direct: Manufacturer discount dollars
+  - Sell-through: Wholesale-to-retailer markup dollars
 - **Notes:**
   - Must be `>= 0`
   - QA rule: `discount_amount <= gross_sales_amount`
@@ -159,11 +170,16 @@ This means a row’s **effective unit list price** may be lower than the product
 - **Grain:** `fact_sales`
 - **Source inputs:** `units_sold`, `unit_net_price`
 - **Formula (row-level):**
-  - `net_sales_amount = units_sold * unit_net_price`
+  - B2B/Direct: `quantity_packs * unit_price * (1 - discount_percent)`
+  - Sell-through: `quantity_packs * wholesale_price`
 - **Equivalent formula:**
   - `net_sales_amount = gross_sales_amount * (1 - discount_rate)`
+- **Manufacturer context:**
+  - B2B/Direct: Manufacturer net revenue (recognized revenue)
+  - Sell-through: Wholesale revenue (not manufacturer revenue)
 - **Notes:**
-  - This is the primary revenue metric for most reporting.
+  - This is the primary revenue metric for most reporting
+  - For manufacturer total revenue, sum only B2B + Direct channels
 
 ---
 
@@ -182,38 +198,81 @@ This means a row’s **effective unit list price** may be lower than the product
 ---
 
 ### 9) `order_count`
-- **Definition:** Estimated number of orders represented by the row.
+- **Definition:** Number of orders represented by the row.
 - **Type:** Integer
 - **Unit:** Count
 - **Grain:** `fact_sales`
-- **Source inputs:** `units_sold`, channel order packing assumptions
+- **Source inputs:** B2B/Direct order data
 - **Formula (row-level):**
-  - Retail: `ceil(units_sold / randint(2, 6))`
-  - Non-retail: `ceil(units_sold / randint(8, 20))`
+  - B2B/Direct: Count of distinct `order_id` from manufacturer data
+  - Sell-through: Set to 1 (transaction-level data)
+- **Manufacturer context:**
+  - B2B/Direct: Actual purchase orders from wholesalers/retailers
+  - Sell-through: Individual retail transactions (no order grouping)
 - **Notes:**
-  - Synthetic estimate used for operational KPI demos.
+  - For manufacturer KPIs, use B2B + Direct channels only
 
 ---
 
 ### 10) `customer_count`
-- **Definition:** Estimated number of customers represented by the row.
+- **Definition:** Number of business entity customers represented by the row.
 - **Type:** Integer
 - **Unit:** Count
 - **Grain:** `fact_sales`
-- **Source inputs:** `order_count`
+- **Source inputs:** Business entity licenses
 - **Formula (row-level):**
-  - `customer_count = ceil(order_count * uniform(0.85, 1.0))`
+  - B2B/Direct: Count of distinct business licenses (wholesalers/retailers)
+  - Sell-through: Count of distinct retailer licenses
+- **Manufacturer context:**
+  - B2B: Wholesaler count (B2B customers)
+  - Direct: Retailer count (direct customers)
+  - Sell-through: Retailer count (end-market visibility)
 - **Notes:**
-  - Synthetic estimate for customer reach / penetration visuals.
+  - Business-to-business customers, not end consumers
+  - Based on Oregon cannabis business licenses
 
 ---
 
 ## Suggested Derived Sales KPIs (Reporting Layer)
 
-These can be calculated in SQL or Power BI (not necessarily stored in `fact_sales`).
+These can be calculated in SQL or Tableau (not necessarily stored in `fact_sales`).
+
+### Manufacturer-Specific KPIs
+
+### Total Manufacturer Revenue
+- **Definition:** Combined B2B + Direct revenue (excludes sell-through)
+- **Formula:**
+  - `SUM(net_sales_amount) WHERE sales_source IN ('b2b', 'direct')`
+
+### B2B Sales
+- **Definition:** Manufacturer to wholesaler sales
+- **Formula:**
+  - `SUM(net_sales_amount) WHERE sales_source = 'b2b'`
+
+### Direct Sales
+- **Definition:** Manufacturer to retailer sales
+- **Formula:**
+  - `SUM(net_sales_amount) WHERE sales_source = 'direct'`
+
+### Sell-through
+- **Definition:** Wholesaler to retailer sales (market intelligence)
+- **Formula:**
+  - `SUM(net_sales_amount) WHERE sales_source = 'sell_through'`
+
+### Distribution Coverage
+- **Definition:** Percentage of business entities with active sales
+- **Formula:**
+  - `COUNT(DISTINCT location_key) / total_locations * 100`
+
+### Channel Mix
+- **Definition:** Revenue contribution by channel
+- **Formula:**
+  - `SUM(net_sales_amount) BY sales_source / total_manufacturer_revenue`
+
+### Standard KPIs
 
 ### Average Selling Price (ASP)
-- **Definition:** Average net revenue per unit
+- **Definition:** Average net revenue per pack
 - **Formula:**
   - `ASP = SUM(net_sales_amount) / NULLIF(SUM(units_sold), 0)`
 
@@ -245,41 +304,28 @@ These can be calculated in SQL or Power BI (not necessarily stored in `fact_sale
 ## Inventory Metrics (`fact_inventory`)
 
 ### `on_hand_units`
-- **Definition:** Ending on-hand inventory units after shipments and receipts.
-- **Unit:** Count
-- **Formula basis:** Inventory state simulation
+- **Definition:** Ending on-hand inventory packs at Althea warehouse.
+- **Unit:** Count (packs)
+- **Formula basis:** Manufacturer inventory simulation
+- **Manufacturer context:** Single warehouse location (ALTHEA_WAREHOUSE)
 
 ### `received_units`
-- **Definition:** Units received into inventory on the day.
-- **Unit:** Count
+- **Definition:** Units produced/received into inventory on the day.
+- **Unit:** Count (packs)
+- **Manufacturer context:** Production output at manufacturer facility
 
 ### `shipped_units`
-- **Definition:** Units shipped out on the day.
-- **Unit:** Count
-
-### `requested_units`
-- **Definition:** Requested demand units (may exceed shipped units if stock constrained).
-- **Unit:** Count
-
-### `backordered_units`
-- **Definition:** Requested units not shipped due to insufficient inventory.
-- **Unit:** Count
-- **Formula:**
-  - `backordered_units = max(0, requested_units - shipped_units)`
-
-### `in_stock_flag`
-- **Definition:** Whether ending on-hand inventory is positive.
-- **Unit:** Binary (0/1)
-- **Formula:**
-  - `in_stock_flag = 1 if on_hand_units > 0 else 0`
+- **Definition:** Units shipped out on the day (B2B + Direct).
+- **Unit:** Count (packs)
+- **Manufacturer context:** Total manufacturer shipments to customers
 
 ### Suggested derived inventory KPIs
-- **Fill Rate**
-  - `SUM(shipped_units) / NULLIF(SUM(requested_units), 0)`
-- **Backorder Rate**
-  - `SUM(backordered_units) / NULLIF(SUM(requested_units), 0)`
-- **In-Stock %**
-  - `AVG(in_stock_flag)`
+- **Days of Supply**
+  - `on_hand_units / avg_daily_shipment_rate`
+- **Production Efficiency**
+  - `received_units / production_capacity`
+- **Inventory Turnover**
+  - `SUM(shipped_units) / AVG(on_hand_units)`
 
 ---
 
@@ -350,18 +396,22 @@ Use these in SQL validation or Python QA scripts:
 ### Sales QA
 - `units_sold >= 1`
 - `unit_list_price > 0`
-- `0 <= discount_rate <= 0.35`
+- `0 <= discount_rate <= 0.50` (expanded for sell-through markup)
 - `unit_net_price <= unit_list_price`
 - `gross_sales_amount = units_sold * unit_list_price` (within rounding tolerance)
 - `net_sales_amount = units_sold * unit_net_price` (within rounding tolerance)
 - `discount_amount = gross_sales_amount - net_sales_amount` (within rounding tolerance)
-- `cogs_amount <= net_sales_amount` (usually true in your model due to clip)
+- `cogs_amount <= net_sales_amount`
 - `discount_amount >= 0`
+- **Manufacturer-specific:**
+  - B2B/Direct channels: `discount_rate <= 0.20`
+  - Sell-through channel: `discount_rate >= 0.15` (wholesale markup)
 
 ### Inventory QA
-- `requested_units >= shipped_units`
-- `backordered_units = requested_units - shipped_units` (if positive, else 0)
-- `in_stock_flag IN (0,1)`
+- `on_hand_units >= 0`
+- `received_units >= 0`
+- `shipped_units >= 0`
+- `on_hand_units = previous_on_hand + received_units - shipped_units` (inventory balance)
 
 ### Labor QA
 - `labor_hours >= 0`
@@ -374,15 +424,20 @@ Use these in SQL validation or Python QA scripts:
 ## Implementation Guidance
 
 ### Where logic should live
-- **Row-level generation logic:** Python (`scripts/generate_project1_data.py`)
-- **Standardized metric definitions:** This file (`metrics_dictionary.md`)
-- **Aggregated/reporting logic:** SQL / Power BI measures
-- **Validation logic:** SQL validation scripts or Python QA checks
+- **Row-level generation logic:** Python (`scripts/generate_project1_manufacturer_data.py`)
+- **Standardized metric definitions:** This file (`metric_dictionary.md`) + YAML (`metric_dictionary.yml`)
+- **Aggregated/reporting logic:** SQL mart views / Tableau calculations
+- **Validation logic:** SQL QA scripts or Python QA checks
+
+### Data sources
+- **Manufacturer data:** `data/reference/althea_manufacturer/`
+- **Business entities:** Oregon cannabis business licenses (258 wholesalers, 795 retailers)
+- **Product catalog:** 12 Althea SKUs with manufacturer pricing
 
 ### Naming conventions
 Use clear suffixes:
 - `_amount` for currency totals (USD)
-- `_price` for per-unit prices
+- `_price` for per-unit prices (per pack)
 - `_rate` for proportions (0–1)
 - `_count` for counts
 - `_pct` for presentation ratios (optional, often reporting-only)
@@ -391,13 +446,17 @@ Use clear suffixes:
 
 ## Change Log
 
+### v2.0 (Manufacturer Model Update)
+- Updated all metrics for manufacturer model (B2B + Direct + Sell-through)
+- Replaced retail POS model with manufacturer business model
+- Added manufacturer-specific metrics (B2B sales, Direct sales, Sell-through)
+- Updated pricing logic for manufacturer vs wholesale vs retail channels
+- Added Oregon business license context (1,053 real business entities)
+- Updated grain definitions for manufacturer data structure
+- Added manufacturer-specific QA rules
+- Created companion YAML file for machine-readable definitions
+
 ### v1 (Draft)
-- Established canonical definitions for:
-  - `gross_sales_amount`
-  - `net_sales_amount`
-  - `discount_amount`
-  - `unit_list_price` (proposed)
-  - `unit_net_price` (proposed)
-  - `discount_rate` (proposed)
+- Established canonical definitions for retail POS model
 - Added inventory and labor metric definitions
 - Added QA rule suggestions

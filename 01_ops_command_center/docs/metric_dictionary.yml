@@ -1,0 +1,214 @@
+# Project 1 - Althea Ops Command Center Metric Dictionary
+# Extends repo-wide metric definitions with manufacturer model specifics
+# Version: 1.0
+# Last Updated: 2024-06-07
+# Extends: ../../docs/metric_dictionary.yml
+
+extends: ../../docs/metric_dictionary.yml
+
+project_context:
+  name: "Althea Ops Command Center"
+  business_model: "Manufacturer Model (B2B + Direct + Sell-through)"
+  data_sources:
+    - "B2B orders (manufacturer to wholesalers)"
+    - "Direct sales (manufacturer to retailers)"
+    - "Sell-through data (wholesalers to retailers)"
+  geographic_scope: "Oregon (258 wholesalers, 795 retailers)"
+  product_count: 12
+  date_range: "2024-01-01 to 2025-12-31"
+
+project_specific_metrics:
+  # ===============================
+  # MANUFACTURER MODEL SPECIFIC METRICS
+  # ===============================
+  
+  b2b_sales:
+    extends: net_sales
+    filter: "channel = 'Wholesale'"
+    grain: "daily"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Manufacturer sales to wholesalers/distributors"
+    implementation_notes: "Calculated from stg_b2b_orders staging view"
+    sql_example: "SELECT sum(net_sales) FROM mart.fact_sales_b2b_daily WHERE sale_date = '2024-01-15'"
+    examples:
+      - "Daily B2B sales by wholesaler license"
+      - "Monthly B2B sales by SKU"
+      - "Quarterly B2B sales by county"
+      
+  direct_sales:
+    extends: net_sales
+    filter: "channel = 'Direct'"
+    grain: "daily"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Manufacturer direct sales to large retail chains"
+    implementation_notes: "Calculated from stg_direct_sales staging view"
+    sql_example: "SELECT sum(net_sales) FROM mart.fact_sales_direct_daily WHERE sale_date = '2024-01-15'"
+    examples:
+      - "Daily direct sales by retailer license"
+      - "Monthly direct sales by account type"
+      - "Quarterly direct sales by region"
+      
+  sell_through:
+    extends: net_sales
+    filter: "channel = 'Distributor'"
+    grain: "daily"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Downstream retail sales for market intelligence"
+    implementation_notes: "Calculated from stg_sell_through staging view"
+    sql_example: "SELECT sum(net_sales) FROM mart.fact_sales_sell_through_daily WHERE sale_date = '2024-01-15'"
+    examples:
+      - "Daily sell-through by retailer license"
+      - "Monthly sell-through by SKU"
+      - "Quarterly sell-through by county"
+      
+  total_manufacturer_sales:
+    extends: net_sales
+    formula: "b2b_sales + direct_sales"
+    grain: "daily"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Total manufacturer revenue (B2B + Direct, excludes sell-through)"
+    implementation_notes: "Union of B2B and Direct sales from mart.fact_sales_daily"
+    sql_example: "SELECT sum(net_sales) FROM mart.fact_sales_daily WHERE sales_source IN ('b2b', 'direct')"
+    examples:
+      - "Daily total manufacturer sales"
+      - "Monthly total manufacturer sales by channel"
+      - "Annual total manufacturer sales trend"
+      
+  distribution_coverage:
+    definition: "Percentage of wholesalers/retailers with active sales in period"
+    formula: "(count(distinct store_code) WHERE net_sales > 0) / total_locations * 100"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "manufacturer"
+    business_context: "Market penetration metric across distribution network"
+    implementation_notes: "Calculated from mart.fact_sales_daily with location dimension"
+    sql_example: "SELECT count(DISTINCT store_code) FROM mart.fact_sales_daily WHERE sale_date >= '2024-01-01' AND sale_date <= '2024-01-31'"
+    examples:
+      - "Monthly distribution coverage by region"
+      - "Quarterly distribution coverage by SKU"
+      - "Annual distribution coverage trend"
+      
+  wholesaler_penetration:
+    definition: "Number of unique wholesalers with B2B orders in period"
+    formula: "count(distinct wholesaler_license) WHERE b2b_sales > 0"
+    grain: "monthly"
+    data_type: "integer"
+    category: "manufacturer"
+    business_context: "Wholesale network reach metric"
+    implementation_notes: "Calculated from int.int_b2b_dedup"
+    sql_example: "SELECT count(DISTINCT store_code) FROM mart.fact_sales_b2b_daily WHERE sale_date >= '2024-01-01' AND sale_date <= '2024-01-31'"
+    examples:
+      - "Monthly wholesaler penetration by county"
+      - "Quarterly wholesaler penetration by SKU"
+      - "Annual wholesaler penetration trend"
+      
+  retailer_penetration:
+    definition: "Number of unique retailers with direct orders in period"
+    formula: "count(distinct retailer_license) WHERE direct_sales > 0"
+    grain: "monthly"
+    data_type: "integer"
+    category: "manufacturer"
+    business_context: "Direct-to-retail network reach metric"
+    implementation_notes: "Calculated from int.int_direct_dedup"
+    sql_example: "SELECT count(DISTINCT store_code) FROM mart.fact_sales_direct_daily WHERE sale_date >= '2024-01-01' AND sale_date <= '2024-01-31'"
+    examples:
+      - "Monthly retailer penetration by account type"
+      - "Quarterly retailer penetration by SKU"
+      - "Annual retailer penetration trend"
+      
+  # ===============================
+  # PROJECT-Specific KPIs
+  # ===============================
+  
+  b2b_sales_per_wholesaler:
+    definition: "Average B2B sales per active wholesaler"
+    formula: "b2b_sales / active_wholesaler_count"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "kpi"
+    business_context: "Wholesale account productivity metric"
+    implementation_notes: "Combines B2B sales with wholesaler penetration"
+    sql_example: "SELECT sum(net_sales) / count(DISTINCT store_code) FROM mart.fact_sales_b2b_daily WHERE sale_date >= '2024-01-01' AND sale_date <= '2024-01-31'"
+    examples:
+      - "Monthly B2B sales per wholesaler by county"
+      - "Quarterly B2B sales per wholesaler trend"
+      
+  direct_sales_per_account:
+    definition: "Average direct sales per active retail account"
+    formula: "direct_sales / active_retailer_count"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "kpi"
+    business_context: "Direct account productivity metric"
+    implementation_notes: "Combines direct sales with retailer penetration"
+    sql_example: "SELECT sum(net_sales) / count(DISTINCT store_code) FROM mart.fact_sales_direct_daily WHERE sale_date >= '2024-01-01' AND sale_date <= '2024-01-31'"
+    examples:
+      - "Monthly direct sales per account by account type"
+      - "Quarterly direct sales per account trend"
+      
+  channel_mix:
+    definition: "Percentage contribution of each sales channel to total sales"
+    formula: "(channel_sales / total_manufacturer_sales) * 100"
+    grain: "monthly"
+    data_type: "numeric"
+    category: "kpi"
+    business_context: "Sales channel distribution analysis"
+    implementation_notes: "Calculated from mart.fact_sales_daily grouped by sales_source"
+    sql_example: "SELECT sales_source, sum(net_sales) / (SELECT sum(net_sales) FROM mart.fact_sales_daily WHERE sales_source IN ('b2b', 'direct')) * 100 FROM mart.fact_sales_daily WHERE sales_source IN ('b2b', 'direct') GROUP BY sales_source"
+    examples:
+      - "Monthly channel mix by region"
+      - "Quarterly channel mix trend"
+      - "Annual channel mix analysis"
+
+  # ===============================
+  # OVERRIDES OF REPO-WIDE METRICS
+  # ===============================
+
+  gross_sales:
+    override_grain: "daily"
+    override_implementation: "Sum across B2B, Direct, and Sell-through channels"
+    override_sql_example: "SELECT sum(gross_sales) FROM mart.fact_sales_daily"
+    project_notes: "Includes all three manufacturer channels for comprehensive view"
+
+  net_sales:
+    override_grain: "daily"
+    override_implementation: "Sum across B2B, Direct, and Sell-through channels"
+    override_sql_example: "SELECT sum(net_sales) FROM mart.fact_sales_daily"
+    project_notes: "Includes all three manufacturer channels for comprehensive view"
+
+  units_sold:
+    override_grain: "daily"
+    override_implementation: "Sum of quantity_packs across all channels"
+    override_sql_example: "SELECT sum(qty) FROM mart.fact_sales_daily"
+    project_notes: "Measured in packs (not individual gummies) per manufacturer data model"
+
+  order_count:
+    override_grain: "daily"
+    override_implementation: "Count of distinct order_id from B2B and Direct channels"
+    override_sql_example: "SELECT sum(orders) FROM mart.fact_sales_daily WHERE sales_source IN ('b2b', 'direct')"
+    project_notes: "Sell-through channel does not have order_id, uses transaction count instead"
+
+  customer_count:
+    override_grain: "daily"
+    override_implementation: "Count of distinct business entities (wholesalers + retailers)"
+    override_sql_example: "SELECT sum(customers) FROM mart.fact_sales_daily"
+    project_notes: "Business-to-business customers, not end consumers"
+
+# Metadata
+metadata:
+  version: "1.0"
+  created_date: "2024-06-07"
+  last_updated: "2024-06-07"
+  project: "01_ops_command_center"
+  extends: "../../docs/metric_dictionary.yml"
+  purpose: "Project-specific metric definitions extending repo-wide standards"
+  usage_notes:
+    - "Extends repo-wide metric definitions with manufacturer model specifics"
+    - "Project-specific metrics should be defined here"
+    - "Overrides repo-wide metrics where Project 1 implementation differs"
+    - "All project metrics should reference or extend repo-wide definitions"
+    - "SQL examples use actual Project 1 table and view names"
