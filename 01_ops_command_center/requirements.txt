@@ -1,1 +1,7 @@
+# 01_ops_command_center/requirements.txt
 # Project-specific Python dependencies.
+
+-r ../requirements.txt  # Inherits master
+
+# Project-specific additions
+# powerbi-client>=1.0.0  # If you add Power BI API integration later
