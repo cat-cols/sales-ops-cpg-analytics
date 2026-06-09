@@ -574,7 +574,7 @@ Total = CALCULATE(SUM(Sales[Amount]), ALL(Sales))
 
 **DAX Answer:**
 ```dax
-Category Margin = 
+Category Margin =
     DIVIDE(
         SUMX(
             FILTER(
@@ -595,7 +595,7 @@ Category Margin =
 
 **Better Version:**
 ```dax
-Gross Margin = 
+Gross Margin =
     DIVIDE(
         SUM(Sales[Revenue]) - SUM(Sales[COGS]),
         SUM(Sales[Revenue])
@@ -606,7 +606,7 @@ Gross Margin =
 ### Q: "Compare current month to same month last year"
 
 ```dax
-Sales SPLY = 
+Sales SPLY =
     CALCULATE(
         [Total Sales],
         SAMEPERIODLASTYEAR(Calendar[Date])
@@ -620,7 +620,7 @@ Growth % = DIVIDE([Sales Growth], [Sales SPLY])
 ### Q: "Show only states with over $1M revenue"
 
 ```dax
-Million Dollar States = 
+Million Dollar States =
     IF(
         [Total Sales] > 1000000,
         [Total Sales],
@@ -630,7 +630,7 @@ Million Dollar States =
 
 ---
 
-## 📚 STUDY STRATEGY FOR WYLD INTERVIEW
+## 📚 STUDY STRATEGY FOR INTERVIEW
 
 **Days 1-2: Understand these core concepts**
 1. Measures vs. Calculated Columns
