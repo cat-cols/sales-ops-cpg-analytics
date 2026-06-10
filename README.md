@@ -1,9 +1,18 @@
-# Wyld-Style Business Analyst Portfolio
+![Althea Logo](assets/branding/thumbnails/althea.png)
 
+# Althea Medicinals
+## Cannabis Gummy Brand Business Analysis Portfolio
+
+![Althea](https://img.shields.io/badge/Althea-Analytics-blue)
 ![Project](https://img.shields.io/badge/flagship-Ops%20Command%20Center-4f46e5)
-![Status](https://img.shields.io/badge/status-active%20multi--project%20portfolio-brightgreen)
-![Focus](https://img.shields.io/badge/focus-SQL%20%7C%20QA%2FQC%20%7C%20reconciliation-blue)
+![Status](https://img.shields.io/badge/status-core%20build%20substantially%20complete-brightgreen)
+![Focus](https://img.shields.io/badge/focus-SQL%20%7C%20QA%20%7C%20reconciliation-blue)
 ![Docs](https://img.shields.io/badge/docs-playbooks%20%7C%20rules%20%7C%20methodology-0ea5e9)
+
+![P1](https://img.shields.io/badge/P1-95%25%20complete-brightgreen)
+![P2](https://img.shields.io/badge/P2-75%25%20complete-green)
+![P3](https://img.shields.io/badge/P3-25%25%20complete-yellow)
+![P4](https://img.shields.io/badge/P4-85%25%20complete-green)
 
 A multi-project analytics portfolio designed to simulate realistic Business Analyst and Analytics Engineering work across messy source intake, standardization, QA/QC, reconciliation, semantic-model planning, and decision-ready reporting.
 
@@ -450,3 +459,5 @@ LinkedIn: [brandon-hardison](https://www.linkedin.com/in/brandon-hardison-140032
 ## License
 
 This project is licensed under the terms in [`LICENSE`](LICENSE).
+
+![Althea Logo](assets/branding/thumbnails/althea_2.png)
