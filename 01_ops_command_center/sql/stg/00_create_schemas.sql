@@ -1,6 +1,6 @@
 -- stg/00_create_schemas.sql
 -- Purpose: one-time (but safe to rerun) schema bootstrap for the whole pipeline
--- Run with: psql "$PROJECT1_PG_DSN" -v ON_ERROR_STOP=1 -f stg/00_create_schemas.sql
+-- Run with: psql "$ALTHEA_OPS" -v ON_ERROR_STOP=1 -f stg/00_create_schemas.sql
 
 -- Create core schemas (idempotent)
 create schema if not exists raw;
