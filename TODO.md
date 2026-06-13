@@ -139,6 +139,9 @@
 - [ ] Executive walkthrough documentation updates
 - [ ] Final testing of manufacturer model pipeline in PostgreSQL
 
+## LEAN SIX SIGMA
+- [ ] LEAN SIX SIGMA
+
 ## Project 2
 - [ ] Build Power BI dashboards (3 pages: Data Quality Monitor, Open Exceptions, Reconciliation & Certification)
 - [ ] Power BI screenshots for README

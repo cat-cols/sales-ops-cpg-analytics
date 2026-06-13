@@ -75,7 +75,7 @@ metrics:
     examples:
       - "Daily order count by store"
       - "Monthly order count by channel"
-      
+
   customer_count:
     definition: "Number of distinct customers who made purchases"
     formula: "count(distinct customer_id)"
@@ -86,7 +86,7 @@ metrics:
     examples:
       - "Daily customer count by store"
       - "Monthly customer count by region"
-      
+
   average_selling_price:
     definition: "Average price per unit sold"
     formula: "net_sales / units_sold"
@@ -97,11 +97,11 @@ metrics:
     examples:
       - "Daily ASP by SKU"
       - "Monthly ASP by category"
-      
+
   # ===============================
   # PROFITABILITY METRICS
   # ===============================
-  
+
   cogs:
     definition: "Cost of goods sold - direct costs to produce sold items"
     formula: "sum(units_sold * unit_cost)"
@@ -112,7 +112,7 @@ metrics:
     examples:
       - "Daily COGS by SKU"
       - "Monthly COGS by category"
-      
+
   gross_margin:
     definition: "Gross profit in monetary terms"
     formula: "net_sales - cogs"
@@ -123,7 +123,7 @@ metrics:
     examples:
       - "Daily gross margin by store"
       - "Monthly gross margin by SKU"
-      
+
   gross_margin_percent:
     definition: "Gross margin expressed as percentage of net sales"
     formula: "(gross_margin / net_sales) * 100"
@@ -134,11 +134,11 @@ metrics:
     examples:
       - "Daily gross margin % by SKU"
       - "Monthly gross margin % by category"
-      
+
   # ===============================
   # INVENTORY METRICS
   # ===============================
-  
+
   on_hand_units:
     definition: "Physical quantity of inventory available"
     formula: "sum(ending_inventory)"
@@ -149,7 +149,7 @@ metrics:
     examples:
       - "Daily on-hand units by SKU"
       - "Daily on-hand units by location"
-      
+
   received_units:
     definition: "Quantity of inventory received from suppliers/production"
     formula: "sum(units_received)"
@@ -160,7 +160,7 @@ metrics:
     examples:
       - "Daily received units by SKU"
       - "Monthly received units by location"
-      
+
   shipped_units:
     definition: "Quantity of inventory shipped to customers"
     formula: "sum(units_shipped)"
@@ -171,7 +171,7 @@ metrics:
     examples:
       - "Daily shipped units by SKU"
       - "Monthly shipped units by location"
-      
+
   days_of_supply:
     definition: "Number of days current inventory will last at current sales rate"
     formula: "on_hand_units / avg_daily_sales"
@@ -182,7 +182,7 @@ metrics:
     examples:
       - "Daily days of supply by SKU"
       - "Monthly days of supply by location"
-      
+
   in_stock_rate:
     definition: "Percentage of time items are in stock"
     formula: "(days_in_stock / total_days) * 100"
@@ -193,11 +193,11 @@ metrics:
     examples:
       - "Monthly in-stock rate by SKU"
       - "Quarterly in-stock rate by category"
-      
+
   # ===============================
   # LABOR METRICS
   # ===============================
-  
+
   labor_hours:
     definition: "Total hours worked by employees"
     formula: "sum(hours_worked)"

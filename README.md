@@ -16,7 +16,31 @@
 
 A multi-project analytics portfolio designed to simulate realistic Business Analyst and Analytics Engineering work across messy source intake, standardization, QA/QC, reconciliation, semantic-model planning, and decision-ready reporting.
 
+A multi-project analytics operations portfolio focused on messy source intake, SQL modeling, QA/QC, reconciliation, semantic model planning, and executive reporting for a synthetic CPG/cannabis manufacturer.
+
 This repository is built to show more than dashboarding. It is meant to demonstrate how analytical work holds up when the environment is messy: inconsistent source files, data quality failures, reconciliation gaps, documentation requirements, and reporting controls.
+
+This repo is organized as a multi-project portfolio program that simulates a real Business Analyst / Analytics workflow:
+
+> This repo is built to demonstrate business analysis and analytics engineering habits in a realistic operating environment: messy inputs, documented controls, reusable SQL patterns, semantic model planning, and decision-ready reporting outputs.
+
+- **Status:** Core analytics build substantially complete
+- **Strongest layers:** Staging, conformance, marts, QA, reconciliation
+- **Current focus:** Semantic-model planning, validation documentation, and report-layer design
+- **Source intake → standardization → QA/QC → reconciliation → semantic model → executive reporting**
+
+---
+
+## What this repo proves
+
+- **Cross-functional analytics thinking** (Sales, Operations, Labor, Sustainability)
+- **Data quality and reconciliation discipline** (not just dashboards)
+- **SQL-first modeling habits** (staging → conformance → marts → validation)
+- **BI/semantic model planning** (DAX catalogs, relationships, naming conventions)
+- **Documentation maturity** (playbooks, source registers, metric dictionary, methodology)
+- **Portfolio-ready project structure** with reusable templates and standards
+
+---
 
 **Workflow focus:**
 **source intake → standardization → QA/QC → reconciliation → semantic model → executive reporting**
@@ -67,19 +91,17 @@ This repository is built to show more than dashboarding. It is meant to demonstr
 .
 ├── 01_ops_command_center/               # Flagship BI + reconciliation project
 │   ├── data/
-│   ├── sql/
-│   ├── powerbi/
+│   ├── sql/                             # staging / conformance / marts / validation
+│   ├── powerbi/                         # semantic model + report page docs
 │   ├── docs/
 │   ├── reports/
 │   ├── scripts/
+│   ├── tableau/                         # tableau workbooks and documentation
 │   └── requirements.txt
 |
 ├── 02_quarterly_dc_qaqc_system/         # Quarterly QA/QC + reconciliation project
 ├── 03_forecasting_variance_story/       # Forecasting + variance analysis
-├── 04_ghg_scope_reporting/              # GHG / ESG reporting + assurance-ready docs
-├── 05_decision_engine/                  # Decision engine and recommendation system
-├── 06_fpna_planning/                    # FPNA planning and forecasting
-├── 07_sales_data_coordinator/           # Sales data coordination and standardization
+├── 04_ghg_scope_reporting/              # GHG/ESG reporting + assurance-ready docs
 |
 ├── shared/                              # Reusable patterns/templates across projects
 │   ├── sql/
@@ -179,7 +201,7 @@ This portfolio uses a synthetic analytics environment designed to simulate reali
 
 ## Projects
 
-## 01 — Ops Command Center (Sales + Ops + Labor BI)
+## 01 — Operations Command Center (Sales + Ops + Labor BI)
 
 **Goal:** Build a decision-ready command center that integrates cross-functional data with reconciliation and control logic.
 
@@ -207,6 +229,8 @@ This portfolio uses a synthetic analytics environment designed to simulate reali
 * [`01_ops_command_center/sql/`](01_ops_command_center/sql/) — staging, conformance, marts, validation
 * [`01_ops_command_center/docs/`](01_ops_command_center/docs/) — source register, stakeholder notes, reconciliation logs, metric dictionaries
 * [`01_ops_command_center/tableau/`](01_ops_command_center/tableau/) — Tableau implementation guides and calculated fields
+* [`01_ops_command_center/powerbi/semantic_model/`](01_ops_command_center/powerbi/semantic_model/) — DAX catalog, relationships, naming conventions
+* [`01_ops_command_center/reports/`](01_ops_command_center/reports/) — scheduled exports, ad hoc requests, deck outlines
 * [`01_ops_command_center/scripts/`](01_ops_command_center/scripts/) — manufacturer model data generation
 
 ---
@@ -214,8 +238,9 @@ This portfolio uses a synthetic analytics environment designed to simulate reali
 ## 02 — Quarterly Data Collection + QA/QC System
 
 **Goal:** Simulate a governed quarterly intake, validation, reconciliation, and certification workflow for messy departmental submissions.
+**Goal:** Simulate a repeatable quarterly data intake and QA process with DQ rules, exceptions, and reconciliation outputs.
 
-**Status:** 75% complete - SQL pipeline complete, Power BI dashboards pending
+**Status:** 75% complete - SQL pipeline complete, Tableau/Power BI dashboards pending
 
 ### What it demonstrates
 
@@ -226,6 +251,8 @@ This portfolio uses a synthetic analytics environment designed to simulate reali
 * operational-to-finance reconciliation
 * reporting integrity before publication
 * hold-or-certify decision support
+* QA/QC process design
+* Exceptions handling
 
 ### Current implemented outputs
 * staged quarterly source views
@@ -269,6 +296,13 @@ This portfolio uses a synthetic analytics environment designed to simulate reali
 * [`02_quarterly_dc_qaqc_system/docs/`](02_quarterly_dc_qaqc_system/docs/)
 * [`02_quarterly_dc_qaqc_system/README.md`](02_quarterly_dc_qaqc_system/README.md)
 
+### Planned/active deliverables
+
+* DQ rules seed table (`sql/dq_rules/`)
+* DQ scorecard reporting outputs
+* Quarterly playbook + release notes
+* Exceptions/reconciliation workflows
+
 ---
 
 ## 03 — Forecasting + Variance Story
@@ -299,12 +333,15 @@ This portfolio uses a synthetic analytics environment designed to simulate reali
 
 **Goal:** Build a sustainability reporting workflow with methodology clarity, factor versioning, lineage, and audit-friendly controls.
 
+**Goal:** Build a sustainability reporting workflow with clear assumptions, factor versioning, lineage, and audit-friendly documentation.
+
 ### What it demonstrates
 
 * auditability and controls mindset
 * methodology documentation
 * source-to-metric lineage
 * sustainability reporting structure
+* reconciliation checks for ESG-style reporting
 * assurance-readiness practices
 
 ### Planned/active deliverables
@@ -315,59 +352,6 @@ This portfolio uses a synthetic analytics environment designed to simulate reali
 * sustainability scorecard/report scaffolding
 
 ---
-
-## 05 — Decision Engine
-
-**Goal:** Build a decision-support layer that turns trusted analytics marts into business recommendations, alert tables, opportunity tables, and executive-ready summaries.
-
-**Status:** 20% complete - Concept defined, implementation pending
-
-### What it demonstrates
-
-* KPI driver tree design
-* revenue and margin root-cause analysis
-* store / SKU / channel performance flagging
-* low-margin and inventory-risk alert logic
-* opportunity identification
-* executive decision summaries
-* QA checks for decision outputs
-
-### What's needed
-* Data processing logic consuming Project 1 marts
-* KPI driver tree implementation
-* Revenue variance root-cause analysis
-* Alert logic (low margin, inventory risk)
-* Opportunity identification logic
-* Store/SKU performance flagging
-* Executive decision summary views
-* QA checks for decision outputs
-
----
-
-## 06 — FPNA Planning
-
-**Goal:** Build financial planning and analysis capabilities with budget vs actual comparisons, variance analysis, and rolling forecasts.
-
-**Status:** 5% complete - Scope definition pending
-
-### What it demonstrates
-
-* Budget vs actual comparison logic
-* Forecast integration
-* Variance analysis for financial planning
-* Rolling forecasts implementation
-* FP&A dashboard development
-
-### What's needed
-* Complete project scope definition
-* Data model for FP&A planning
-* Budget vs actual comparison logic
-* Forecast integration
-* Variance analysis for financial planning
-* Rolling forecasts implementation
-* SQL pipeline development
-* Power BI planning dashboards
-* Documentation
 
 This repo uses a `shared/` layer to show repeatable operating discipline across projects.
 
@@ -386,8 +370,10 @@ This is intentional: the repo is meant to show not just analysis, but **repeatab
 * **Python** — pandas, numpy, openpyxl, pyarrow
 * **Power BI** — semantic-model and report-design planning
 * **Data Quality** — rules-driven QA/QC workflows
-* **Forecasting** — planned Project 3 expansion
-* **Documentation-first workflow** — playbooks, source registers, methodology, release notes
+* **Forecasting** — (statsmodels / Prophet — planned in Project 3)
+* **Documentation-first workflow** — metric dictionary, playbooks, source registers, methodology, release notes
+
+* **Data Quality** (Great Expectations, Pandera — planned/partial integration)
 
 ---
 
@@ -445,7 +431,13 @@ Near-term improvements:
 * continue Project 3 forecasting build
 * continue Project 4 sustainability reporting build
 * keep shared templates and standards aligned across projects
+* Move large local databases/assets to **GitHub Releases**
+* Finalize repo download/setup links in project docs
+* Add screenshot-based report previews
+* Add minimal vs full environment setup options
+* Build out Project 3 (Forecasting + Variance Story)
 
+See `TODO.md` for the active backlog.
 ---
 
 ## Author
