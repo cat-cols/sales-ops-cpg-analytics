@@ -1,13 +1,13 @@
 # Dashboard Guide — Executive Overview & Reconciliation
 
-**Project:** 01_ops_command_center  
-**Dashboards:** Executive Overview, Reconciliation & Data Health  
-**Platform:** Tableau Desktop / Tableau Public  
-**Data Source:** PostgreSQL mart views  
+**Project:** 01_ops_command_center
+**Dashboards:** Executive Overview, Reconciliation & Data Health
+**Platform:** Tableau Desktop / Tableau Public
+**Data Source:** PostgreSQL mart views
 
 ---
 
-## Executive Overview Dashboard
+># Executive Overview Dashboard
 
 ### Purpose
 
@@ -24,10 +24,10 @@ The Executive Overview dashboard provides leadership with a single, trusted view
 ### KPI Cards
 
 #### Net Sales
-**Definition:** Total net sales amount after discounts and returns  
-**Grain:** Daily, aggregatable to weekly/monthly  
-**Source:** `mart.fact_sales_daily.net_sales_amount`  
-**Calculation:** `SUM([net_sales_amount])`  
+**Definition:** Total net sales amount after discounts and returns
+**Grain:** Daily, aggregatable to weekly/monthly
+**Source:** `mart.fact_sales_daily.net_sales_amount`
+**Calculation:** `SUM([net_sales_amount])`
 **Display:** Big number with:
 - Current period value
 - Period-over-period growth (WoW, MoM, YoY)
@@ -35,10 +35,10 @@ The Executive Overview dashboard provides leadership with a single, trusted view
 - Comparison to target (if available)
 
 #### Gross Margin %
-**Definition:** (Net Sales - COGS) / Net Sales  
-**Grain:** Daily, aggregatable to weekly/monthly  
-**Source:** `mart.kpi_gross_margin_daily`  
-**Calculation:** `(SUM([net_sales_amount]) - SUM([cogs_amount])) / SUM([net_sales_amount])`  
+**Definition:** (Net Sales - COGS) / Net Sales
+**Grain:** Daily, aggregatable to weekly/monthly
+**Source:** `mart.kpi_gross_margin_daily`
+**Calculation:** `(SUM([net_sales_amount]) - SUM([cogs_amount])) / SUM([net_sales_amount])`
 **Display:** Big number with:
 - Current period value
 - Target comparison (reference line)
@@ -46,10 +46,10 @@ The Executive Overview dashboard provides leadership with a single, trusted view
 - Color coding (green = above target, red = below)
 
 #### Sales per Labor Hour
-**Definition:** Net Sales / Total Labor Hours  
-**Grain:** Daily by store  
-**Source:** `mart.kpi_sales_per_labor_hour_daily`  
-**Calculation:** `SUM([net_sales_amount]) / SUM([labor_hours])`  
+**Definition:** Net Sales / Total Labor Hours
+**Grain:** Daily by store
+**Source:** `mart.kpi_sales_per_labor_hour_daily`
+**Calculation:** `SUM([net_sales_amount]) / SUM([labor_hours])`
 **Display:** Big number with:
 - Current period value
 - Trend over time
@@ -57,10 +57,10 @@ The Executive Overview dashboard provides leadership with a single, trusted view
 - Efficiency ranking
 
 #### In-Stock Rate
-**Definition:** Percentage of SKUs with on-hand inventory > 0  
-**Grain:** Daily by store/SKU  
-**Source:** `mart.kpi_instock_rate_daily`  
-**Calculation:** `AVG(IF [on_hand_units] > 0 THEN 1 ELSE 0 END)`  
+**Definition:** Percentage of SKUs with on-hand inventory > 0
+**Grain:** Daily by store/SKU
+**Source:** `mart.kpi_instock_rate_daily`
+**Calculation:** `AVG(IF [on_hand_units] > 0 THEN 1 ELSE 0 END)`
 **Display:** Big number with:
 - Current period value
 - Target (typically 95%+)
