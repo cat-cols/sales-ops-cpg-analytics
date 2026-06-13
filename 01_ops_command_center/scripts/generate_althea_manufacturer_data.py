@@ -33,17 +33,17 @@ END_DATE = datetime(2025, 12, 31)
 
 # Althea product catalog (realistic gummy SKUs)
 ALTHEA_SKUS = [
-    {"sku": "ALT-PCH-100", "name": "Peach 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 10, "unit_price": 18.00},
-    {"sku": "ALT-PCH-200", "name": "Peach 1:1 THC:CBD 200mg", "category": "Edibles", "pack_size": 20, "unit_price": 32.00},
-    {"sku": "ALT-RSP-100", "name": "Raspberry 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 10, "unit_price": 18.00},
+    {"sku": "ALT-PCH-100", "name": "Watermelon 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 20, "unit_price": 18.00},
+    {"sku": "ALT-PCH-200", "name": "Pineapple 1:1 THC:CBD 200mg", "category": "Edibles", "pack_size": 20, "unit_price": 32.00},
+    {"sku": "ALT-RSP-100", "name": "Raspberry 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 20, "unit_price": 18.00},
     {"sku": "ALT-RSP-200", "name": "Raspberry 1:1 THC:CBD 200mg", "category": "Edibles", "pack_size": 20, "unit_price": 32.00},
-    {"sku": "ALT-BRR-100", "name": "Strawberry 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 10, "unit_price": 18.00},
+    {"sku": "ALT-BRR-100", "name": "Mango 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 20, "unit_price": 18.00},
     {"sku": "ALT-BRR-200", "name": "Strawberry 1:1 THC:CBD 200mg", "category": "Edibles", "pack_size": 20, "unit_price": 32.00},
-    {"sku": "ALT-LMN-100", "name": "Lemon 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 10, "unit_price": 18.00},
+    {"sku": "ALT-LMN-100", "name": "Lemon 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 20, "unit_price": 18.00},
     {"sku": "ALT-LMN-200", "name": "Lemon 1:1 THC:CBD 200mg", "category": "Edibles", "pack_size": 20, "unit_price": 32.00},
-    {"sku": "ALT-CHY-100", "name": "Cherry 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 10, "unit_price": 18.00},
+    {"sku": "ALT-CHY-100", "name": "Cherry 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 20, "unit_price": 18.00},
     {"sku": "ALT-CHY-200", "name": "Cherry 1:1 THC:CBD 200mg", "category": "Edibles", "pack_size": 20, "unit_price": 32.00},
-    {"sku": "ALT-HYB-100", "name": "Huckleberry 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 10, "unit_price": 18.00},
+    {"sku": "ALT-HYB-100", "name": "Huckleberry 1:1 THC:CBD 100mg", "category": "Edibles", "pack_size": 20, "unit_price": 18.00},
     {"sku": "ALT-HYB-200", "name": "Huckleberry 1:1 THC:CBD 200mg", "category": "Edibles", "pack_size": 20, "unit_price": 32.00},
 ]
 
