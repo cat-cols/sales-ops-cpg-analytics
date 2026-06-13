@@ -12,7 +12,7 @@
 
 ## Phase 2 — Staging layer (raw → stg)
 
-* [ ] Run `sql/stg/00_create_schemas.sql` against `wyld_chyld`
+* [ ] Run `sql/stg/00_create_schemas.sql` against `althea_ops`
 * [ ] Load/refresh `raw.*` tables from latest source drops
 * [ ] Build all `stg.stg_*` views
 * [ ] Add `sql/stg/_build_stg.sql` runner
@@ -228,7 +228,7 @@
 
 ## Phase 2 — Staging layer (raw → stg)
 
-* [ ] Run `sql/stg/00_create_schemas.sql` against `wyld_chyld`
+* [ ] Run `sql/stg/00_create_schemas.sql` against `althea_ops`
 * [ ] Load/refresh `raw.*` tables from latest source drops
 * [ ] Build all `stg.stg_*` views
 * [ ] Add `sql/stg/_build_stg.sql` runner

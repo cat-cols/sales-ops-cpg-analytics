@@ -26,9 +26,9 @@ This is the flagship project in the repo and the closest match to a Business Ana
 - Uses real Oregon cannabis business license data:
   - Wholesalers: 258 from althea_manufacturer reference data
   - Retailers: 763 ACTIVE OLCC licenses with geocoding (latitude, longitude)
-- 12 Althea SKUs with realistic pricing and volume patterns
+- 12 SKUs with realistic pricing and volume patterns
 - Retailer data includes parsed addresses (street, city, state, zip) for geographic analysis
-- Sales team: 10 sales people with territory-based customer assignments (by Oregon counties)
+- Sales team: 20 sales people with territory-based customer assignments (by Oregon counties)
 
 ## Project Structure
 
