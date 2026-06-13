@@ -157,3 +157,9 @@ README-pipeline.png
 archive/**
 01_ops_command_center/data/raw/*.csv
 01_ops_command_center/data/modeled/*.csv
+
+# Generated database schema documentation
+01_ops_command_center/docs/schema/
+01_ops_command_center/docs/schema_stg/
+01_ops_command_center/docs/schema_int/
+01_ops_command_center/docs/schema_mart/
