@@ -90,8 +90,14 @@ SELECT
         ((unique_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 * 0.2) +
         (CASE WHEN duplicate_keys = 0 THEN 100 ELSE 100 - (duplicate_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 END * 0.2)
     )::numeric, 2) AS overall_quality_score,
-    -- Quality status
-    CASE 
+    -- Quality status (Six Sigma standards)
+    CASE
+        WHEN (
+            (geocoding_completeness_pct * 0.3) +
+            (city_completeness_pct * 0.3) +
+            ((unique_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 * 0.2) +
+            (CASE WHEN duplicate_keys = 0 THEN 100 ELSE 100 - (duplicate_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 END * 0.2)
+        ) >= 99.7 THEN 'SIX SIGMA'
         WHEN (
             (geocoding_completeness_pct * 0.3) +
             (city_completeness_pct * 0.3) +
@@ -103,14 +109,8 @@ SELECT
             (city_completeness_pct * 0.3) +
             ((unique_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 * 0.2) +
             (CASE WHEN duplicate_keys = 0 THEN 100 ELSE 100 - (duplicate_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 END * 0.2)
-        ) >= 80 THEN 'GOOD'
-        WHEN (
-            (geocoding_completeness_pct * 0.3) +
-            (city_completeness_pct * 0.3) +
-            ((unique_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 * 0.2) +
-            (CASE WHEN duplicate_keys = 0 THEN 100 ELSE 100 - (duplicate_keys::numeric / NULLIF(total_records::numeric, 0)) * 100 END * 0.2)
-        ) >= 70 THEN 'FAIR'
-        ELSE 'POOR'
+        ) >= 90 THEN 'GOOD'
+        ELSE 'NEEDS IMPROVEMENT'
     END AS quality_status,
     -- Issues requiring attention
     CASE 

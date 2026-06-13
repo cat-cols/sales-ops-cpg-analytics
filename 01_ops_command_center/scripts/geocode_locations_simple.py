@@ -102,7 +102,7 @@ def update_location_geocoding(conn, location_key, county, state):
         # Get county centroid data
         county_data = OREGON_COUNTY_CENTROIDS.get(county)
         zip_code = OREGON_COUNTY_ZIPS.get(county)
-        
+
         if not county_data:
             logger.warning(f"No centroid data for county: {county}")
             return False

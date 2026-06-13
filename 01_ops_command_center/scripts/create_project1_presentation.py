@@ -4,7 +4,7 @@ from pptx.enum.text import PP_ALIGN
 
 def create_presentation():
     prs = Presentation()
-    
+
     # Slide 1: Title
     slide = prs.slides.add_slide(prs.slide_layouts[0])
     title = slide.shapes.title
